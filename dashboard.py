@@ -85,6 +85,8 @@ with st.sidebar:
     st.markdown("### ⚙️ Lancer le pipeline")
     api_key = st.text_input("Clé AirLabs (optionnelle)", type="password",
                             placeholder="sk-airlabs-...")
+    rapidapi_key = st.text_input("Clé RapidAPI (optionnelle)", type="password",
+                                 placeholder="rapidapi-key...")
     col_p3, col_p4 = st.columns(2)
     use_live_hotels = col_p3.toggle("Hôtels live", value=False, help="Nécessite RAPIDAPI_KEY")
     use_live_trends = col_p4.toggle("Trends live", value=False,
@@ -93,6 +95,7 @@ with st.sidebar:
     if st.button("▶  Lancer", use_container_width=True, type="primary"):
         env = os.environ.copy()
         if api_key: env["AIRLABS_API_KEY"] = api_key
+        if rapidapi_key: env["RAPIDAPI_KEY"] = rapidapi_key
         with st.spinner("Pipeline en cours…"):
             res = subprocess.run(
                 [sys.executable, str(ROOT / "main.py")],
