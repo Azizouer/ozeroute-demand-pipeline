@@ -77,7 +77,9 @@ def load_piste4():
 # ── Sidebar ───────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.image("https://via.placeholder.com/180x40/0d1117/4f8ef7?text=OzeRoute", width=180)
+    logo_path = ROOT / "logo_oz.svg"
+    if logo_path.exists():
+        st.image(str(logo_path), width=200)
     st.title("Pipeline Demande")
 
     st.markdown("### ⚙️ Lancer le pipeline")
