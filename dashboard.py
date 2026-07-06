@@ -83,9 +83,12 @@ with st.sidebar:
     st.title("Pipeline Demande")
 
     st.markdown("### ⚙️ Lancer le pipeline")
+    # Pre-fill from Streamlit Cloud secrets / env vars if available
     api_key = st.text_input("Clé AirLabs (optionnelle)", type="password",
+                            value=os.environ.get("AIRLABS_API_KEY", ""),
                             placeholder="sk-airlabs-...")
     rapidapi_key = st.text_input("Clé RapidAPI (optionnelle)", type="password",
+                                 value=os.environ.get("RAPIDAPI_KEY", ""),
                                  placeholder="rapidapi-key...")
     col_p3, col_p4 = st.columns(2)
     use_live_hotels = col_p3.toggle("Hôtels live", value=False, help="Nécessite RAPIDAPI_KEY")
@@ -93,21 +96,52 @@ with st.sidebar:
                                     help="Lancer localement — Google bloque les datacenters")
 
     if st.button("▶  Lancer", use_container_width=True, type="primary"):
-        env = os.environ.copy()
-        if api_key: env["AIRLABS_API_KEY"] = api_key
-        if rapidapi_key: env["RAPIDAPI_KEY"] = rapidapi_key
+        # Set env vars in-process so imported modules pick them up
+        if api_key:      os.environ["AIRLABS_API_KEY"] = api_key
+        if rapidapi_key: os.environ["RAPIDAPI_KEY"]    = rapidapi_key
+
+        log_lines = []
+        errors     = []
+
+        def run_piste(module_path, label):
+            import importlib.util, traceback
+            try:
+                spec = importlib.util.spec_from_file_location("_piste", ROOT / module_path)
+                mod  = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                mod.main()
+                log_lines.append(f"✅ {label} terminée")
+            except Exception as e:
+                errors.append(f"❌ {label} : {e}")
+                log_lines.append(traceback.format_exc())
+
         with st.spinner("Pipeline en cours…"):
-            res = subprocess.run(
-                [sys.executable, str(ROOT / "main.py")],
-                capture_output=True, text=True, env=env, cwd=str(ROOT)
-            )
-        if res.returncode == 0:
-            st.success("✅ Pipeline terminé")
-            st.cache_data.clear()
+            if api_key:
+                run_piste("piste1_vols/piste1_routes.py",          "Piste 1 — Vols")
+            else:
+                log_lines.append("⚠️  Piste 1 ignorée — clé AirLabs absente")
+            run_piste("piste2_calendriers/overlap_index.py",    "Piste 2 — Calendriers")
+            run_piste("piste3_hotels/hotel_availability.py",    "Piste 3 — Hôtels")
+            run_piste("piste4_trends/google_trends.py",         "Piste 4 — Trends")
+
+            # Combiner
+            try:
+                import importlib.util, traceback
+                spec = importlib.util.spec_from_file_location("_main", ROOT / "main.py")
+                mod  = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                mod.run_combiner()
+                log_lines.append("✅ Signal combiné")
+            except Exception as e:
+                log_lines.append(f"⚠️  Combineur : {e}")
+
+        if errors:
+            st.error("\n".join(errors))
         else:
-            st.error("❌ Erreur")
+            st.success("✅ Pipeline terminé")
+        st.cache_data.clear()
         with st.expander("Log"):
-            st.code(res.stdout + res.stderr)
+            st.code("\n".join(log_lines))
 
     st.divider()
     st.markdown("### 🔍 Filtres")
