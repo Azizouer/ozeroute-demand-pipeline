@@ -80,7 +80,7 @@ with st.sidebar:
     logo_path = ROOT / "logo_oz.svg"
     if logo_path.exists():
         st.image(str(logo_path), width=200)
-    st.title("Pipeline Demande")
+    st.title("Prédiction de la Demande")
 
     st.markdown("### ⚙️ Lancer le pipeline")
     # Pre-fill from Streamlit Cloud secrets / env vars if available
@@ -150,7 +150,16 @@ with st.sidebar:
     if df2_raw is not None:
         min_d = df2_raw["semaine_debut"].min().date()
         max_d = df2_raw["semaine_fin"].max().date()
-        date_range = st.date_input("Période", value=(min_d, max_d), min_value=min_d, max_value=max_d)
+        st.markdown("**📆 Période d'analyse**")
+        date_range = st.date_input(
+            "Sélectionner une plage de dates",
+            value=(min_d, max_d),
+            min_value=min_d,
+            max_value=max_d,
+            help="Filtrer toutes les pistes sur cette période",
+        )
+        if isinstance(date_range, tuple) and len(date_range) == 2:
+            st.caption(f"Du **{date_range[0].strftime('%d %b %Y')}** au **{date_range[1].strftime('%d %b %Y')}**")
     else:
         date_range = None
 
@@ -232,16 +241,52 @@ st.divider()
 # ── Tabs ─────────────────────────────────────────────────────────────────
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📅 P2 — Calendriers",
     "🛫 P1 — Routes",
+    "📅 P2 — Calendriers",
     "🏨 P3 — Hôtels",
     "📈 P4 — Trends",
     "📋 Données brutes",
 ])
 
 
-# ══ TAB 1 — Piste 2 Calendriers ══════════════════════════════════════════
+# ══ TAB 1 — Piste 1 Routes ════════════════════════════════════════════════
 with tab1:
+    if df1 is None or df1.empty:
+        st.info("Pas de données Piste 1 — lancez le pipeline avec AIRLABS_API_KEY.")
+    else:
+        r1, r2 = st.columns(2)
+        mkt = df1.groupby("source_market").size().reset_index(name="routes")
+        fig3 = px.bar(mkt, x="source_market", y="routes", color="source_market",
+                      title="Routes par marché source", height=320,
+                      labels={"source_market":"Marché","routes":"Nb routes"})
+        fig3.update_layout(**DARK, showlegend=False)
+        r1.plotly_chart(fig3, use_container_width=True)
+
+        apt = df1.groupby("arr_iata").size().reset_index(name="routes")
+        fig4 = px.pie(apt, names="arr_iata", values="routes",
+                      title="Distribution par aéroport cible", height=320,
+                      color_discrete_sequence=["#4f8ef7","#e74c3c","#2ecc71"])
+        fig4.update_layout(**DARK)
+        r2.plotly_chart(fig4, use_container_width=True)
+
+        st.subheader("Low-cost vs Réseau par aéroport")
+        ct = df1.groupby(["arr_iata","carrier_type"]).size().reset_index(name="routes")
+        fig5 = px.bar(ct, x="arr_iata", y="routes", color="carrier_type", barmode="group",
+                      height=300, title="Low-cost vs Réseau",
+                      color_discrete_map={"low-cost Beauvais":"#e74c3c","réseau/hybride":"#4f8ef7","autre":"#95a5a6"})
+        fig5.update_layout(**DARK)
+        st.plotly_chart(fig5, use_container_width=True)
+
+        st.subheader("Liste des routes")
+        disp = ["dep_iata","source_market","carrier_type","arr_iata","airline_iata","flight_iata","dep_time"]
+        st.dataframe(df1[disp].rename(columns={
+            "dep_iata":"Départ","source_market":"Marché","carrier_type":"Type",
+            "arr_iata":"Arrivée","airline_iata":"Cie","flight_iata":"Vol","dep_time":"Heure"}),
+            use_container_width=True, height=350)
+
+
+# ══ TAB 2 — Piste 2 Calendriers ══════════════════════════════════════════
+with tab2:
     if df2.empty:
         st.warning("Aucune semaine — vérifier les filtres.")
     else:
@@ -283,42 +328,6 @@ with tab1:
                         unsafe_allow_html=True)
             z = str(row.get("zones_detail",""))
             c3.caption(z[:120]+("…" if len(z)>120 else ""))
-
-
-# ══ TAB 2 — Piste 1 Routes ════════════════════════════════════════════════
-with tab2:
-    if df1 is None or df1.empty:
-        st.info("Pas de données Piste 1 — lancez le pipeline avec AIRLABS_API_KEY.")
-    else:
-        r1, r2 = st.columns(2)
-        mkt = df1.groupby("source_market").size().reset_index(name="routes")
-        fig3 = px.bar(mkt, x="source_market", y="routes", color="source_market",
-                      title="Routes par marché source", height=320,
-                      labels={"source_market":"Marché","routes":"Nb routes"})
-        fig3.update_layout(**DARK, showlegend=False)
-        r1.plotly_chart(fig3, use_container_width=True)
-
-        apt = df1.groupby("arr_iata").size().reset_index(name="routes")
-        fig4 = px.pie(apt, names="arr_iata", values="routes",
-                      title="Distribution par aéroport cible", height=320,
-                      color_discrete_sequence=["#4f8ef7","#e74c3c","#2ecc71"])
-        fig4.update_layout(**DARK)
-        r2.plotly_chart(fig4, use_container_width=True)
-
-        st.subheader("Low-cost vs Réseau par aéroport")
-        ct = df1.groupby(["arr_iata","carrier_type"]).size().reset_index(name="routes")
-        fig5 = px.bar(ct, x="arr_iata", y="routes", color="carrier_type", barmode="group",
-                      height=300, title="Low-cost vs Réseau",
-                      color_discrete_map={"low-cost Beauvais":"#e74c3c","réseau/hybride":"#4f8ef7","autre":"#95a5a6"})
-        fig5.update_layout(**DARK)
-        st.plotly_chart(fig5, use_container_width=True)
-
-        st.subheader("Liste des routes")
-        disp = ["dep_iata","source_market","carrier_type","arr_iata","airline_iata","flight_iata","dep_time"]
-        st.dataframe(df1[disp].rename(columns={
-            "dep_iata":"Départ","source_market":"Marché","carrier_type":"Type",
-            "arr_iata":"Arrivée","airline_iata":"Cie","flight_iata":"Vol","dep_time":"Heure"}),
-            use_container_width=True, height=350)
 
 
 # ══ TAB 3 — Piste 3 Hôtels ════════════════════════════════════════════════
