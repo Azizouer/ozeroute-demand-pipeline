@@ -290,19 +290,62 @@ with tab2:
     if df2.empty:
         st.warning("Aucune semaine — vérifier les filtres.")
     else:
-        fig = go.Figure()
-        for intensity in ["Pic","Fort","Modéré","Faible","Hors saison"]:
-            sub = df2[df2["intensite_court"] == intensity]
-            if sub.empty: continue
+        # Per-market zone contributions (market_weight × zone_share, normalized to [0,1])
+        _ZONE_CONTRIB = {
+            "France":  {"France": 0.40},
+            "UK":      {"England & Wales": 0.187, "Écosse": 0.033},
+            "Italie":  {"Nord (Emilia": 0.07, "Centre/Sud": 0.10, "Nord-Est": 0.03},
+            "Espagne": {"Madrid": 0.072, "Catalogne": 0.072, "Baléares": 0.036},
+        }
+        _MARKET_MAX = {"France": 0.40, "UK": 0.22, "Italie": 0.20, "Espagne": 0.18}
+        _MARKET_COLORS = {"France": "#4f8ef7", "UK": "#e74c3c", "Italie": "#2ecc71", "Espagne": "#e67e22"}
+
+        def _mkt_idx(zones_str, market):
+            if not zones_str or zones_str == "—":
+                return 0.0
+            total = sum(w for k, w in _ZONE_CONTRIB[market].items() if k in zones_str)
+            return round(min(total / _MARKET_MAX[market], 1.0), 3)
+
+        # Market selector cards
+        _OPTIONS = ["🌐 Global", "🇫🇷 FR", "🇬🇧 UK", "🇮🇹 IT", "🇪🇸 ES"]
+        _MKT_MAP  = {"🇫🇷 FR": "France", "🇬🇧 UK": "UK", "🇮🇹 IT": "Italie", "🇪🇸 ES": "Espagne"}
+        try:
+            market_sel = st.pills("Marché", options=_OPTIONS, default="🌐 Global",
+                                  label_visibility="collapsed")
+        except Exception:
+            market_sel = st.radio("Marché", _OPTIONS, horizontal=True,
+                                  label_visibility="collapsed")
+
+        if market_sel == "🌐 Global" or market_sel is None:
+            fig = go.Figure()
+            for intensity in ["Pic","Fort","Modéré","Faible","Hors saison"]:
+                sub = df2[df2["intensite_court"] == intensity]
+                if sub.empty: continue
+                fig.add_trace(go.Bar(
+                    x=sub["label_semaine"], y=sub["index_superposition"],
+                    name=intensity, marker_color=INTENSITY_COLORS[intensity],
+                    hovertemplate="<b>%{x}</b><br>Index : %{y:.2f}<extra></extra>",
+                ))
+            fig.update_layout(**DARK, barmode="overlay",
+                title="Index de superposition hebdomadaire — Global (Piste 2)",
+                xaxis_title="Semaine", yaxis=dict(range=[0,1.05]), height=400)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            _market = _MKT_MAP[market_sel]
+            _color  = _MARKET_COLORS[_market]
+            _vals   = [_mkt_idx(str(r.get("zones_detail","")), _market) for _, r in df2.iterrows()]
+            fig = go.Figure()
             fig.add_trace(go.Bar(
-                x=sub["label_semaine"], y=sub["index_superposition"],
-                name=intensity, marker_color=INTENSITY_COLORS[intensity],
-                hovertemplate="<b>%{x}</b><br>Index : %{y:.2f}<extra></extra>",
+                x=df2["label_semaine"], y=_vals,
+                marker_color=_color, name=_market,
+                hovertemplate="<b>%{x}</b><br>Index " + _market + " : %{y:.2f}<extra></extra>",
             ))
-        fig.update_layout(**DARK, barmode="overlay",
-            title="Index de superposition hebdomadaire (Piste 2)",
-            xaxis_title="Semaine", yaxis=dict(range=[0,1.05]), height=400)
-        st.plotly_chart(fig, use_container_width=True)
+            fig.update_layout(**DARK,
+                title=f"Contribution hebdomadaire — {_market} (Piste 2)",
+                xaxis_title="Semaine",
+                yaxis=dict(range=[0,1.05], title="Index [0 → 1]"),
+                height=400)
+            st.plotly_chart(fig, use_container_width=True)
 
         st.subheader("Marchés actifs par semaine")
         hm_data = []
