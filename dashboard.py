@@ -22,6 +22,13 @@ st.markdown("""
                border-left:4px solid #4f8ef7; margin-bottom:8px; }
 .badge { padding:2px 10px; border-radius:20px; font-size:11px;
          font-weight:600; display:inline-block; margin:2px 0; }
+[data-testid="stDateInput"] input {
+    border: 1.5px solid #4f8ef7 !important;
+    border-radius: 6px !important;
+    background: #111827 !important;
+    color: #e0e6f0 !important;
+    font-weight: 600 !important;
+}
 .badge-red    { background:#e74c3c; color:#fff; }
 .badge-orange { background:#e67e22; color:#fff; }
 .badge-yellow { background:#f1c40f; color:#000; }
@@ -150,16 +157,26 @@ with st.sidebar:
     if df2_raw is not None:
         min_d = df2_raw["semaine_debut"].min().date()
         max_d = df2_raw["semaine_fin"].max().date()
-        st.markdown("**📆 Période d'analyse**")
+        st.markdown("""
+<div style="background:#1a2332;border:1.5px solid #4f8ef7;border-radius:10px;
+            padding:12px 14px 6px 14px;margin-bottom:8px;">
+<span style="color:#4f8ef7;font-size:13px;font-weight:700;letter-spacing:.5px;">
+📆 PÉRIODE D'ANALYSE</span>
+</div>""", unsafe_allow_html=True)
         date_range = st.date_input(
-            "Sélectionner une plage de dates",
+            "Période",
             value=(min_d, max_d),
             min_value=min_d,
             max_value=max_d,
             help="Filtrer toutes les pistes sur cette période",
+            label_visibility="collapsed",
         )
         if isinstance(date_range, tuple) and len(date_range) == 2:
-            st.caption(f"Du **{date_range[0].strftime('%d %b %Y')}** au **{date_range[1].strftime('%d %b %Y')}**")
+            st.markdown(
+                f'<p style="color:#8899bb;font-size:11px;margin:-4px 0 8px 2px;">'
+                f'🗓 {date_range[0].strftime("%d %b %Y")} &nbsp;→&nbsp; {date_range[1].strftime("%d %b %Y")}</p>',
+                unsafe_allow_html=True
+            )
     else:
         date_range = None
 
