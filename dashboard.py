@@ -190,7 +190,7 @@ with st.sidebar:
 
 # ── KPIs globaux ─────────────────────────────────────────────────────────
 
-st.title("✈️ OzeRoute — Prédiction de Demande")
+st.title("✈️ OzeRoute — Prédiction de la Demande")
 
 df2 = df2_raw.copy() if df2_raw is not None else None
 df1 = load_piste1()
