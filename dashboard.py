@@ -405,7 +405,7 @@ with tab3:
     if df3_filtered is None or df3_filtered.empty:
         st.info("Pas de données Piste 3 — lancez le pipeline.")
     else:
-        st.markdown("**Signal de rareté hôtelière** par zone et par semaine."
+        st.markdown("**Pression hôtelière** par zone et par semaine."
                     " Taux d'occupation estimé (mode calibré CRT IDF + événements).")
 
         # Heatmap occupation par zone × semaine
@@ -422,7 +422,7 @@ with tab3:
         st.plotly_chart(fig6, use_container_width=True)
 
         # Signal par zone — barres
-        st.subheader("Signal de rareté par zone")
+        st.subheader("Pression hôtelière par zone")
         signal_order = ["Saturé","Tendu","Actif","Modéré","Creux"]
         zone_signal = df3_filtered.groupby(["zone_label","signal_rarete"]).size().reset_index(name="semaines")
         zone_signal["signal_rarete"] = pd.Categorical(zone_signal["signal_rarete"], categories=signal_order, ordered=True)
@@ -430,7 +430,7 @@ with tab3:
             x="zone_label", y="semaines", color="signal_rarete", barmode="stack",
             color_discrete_map=SIGNAL_COLORS, height=320,
             labels={"zone_label":"Zone","semaines":"Semaines","signal_rarete":"Signal"},
-            title="Distribution du signal de rareté par zone")
+            title="Pression hôtelière par zone")
         fig7.update_layout(**DARK)
         st.plotly_chart(fig7, use_container_width=True)
 
