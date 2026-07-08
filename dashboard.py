@@ -282,10 +282,19 @@ with tab1:
         r1.plotly_chart(fig3, use_container_width=True)
 
         apt = df1.groupby("arr_iata").size().reset_index(name="routes")
-        fig4 = px.pie(apt, names="arr_iata", values="routes",
-                      title="Distribution par aéroport cible", height=320,
-                      color_discrete_map=AIRPORT_COLORS)
-        fig4.update_layout(**DARK)
+        apt["pct"] = (apt["routes"] / apt["routes"].sum() * 100).round(1)
+        apt = apt.sort_values("routes", ascending=True)
+        fig4 = go.Figure(go.Bar(
+            x=apt["routes"], y=apt["arr_iata"], orientation="h",
+            marker_color="#4f8ef7",
+            text=[f"{r}  ({p}%)" for r, p in zip(apt["routes"], apt["pct"])],
+            textposition="outside", cliponaxis=False,
+            hovertemplate="<b>%{y}</b><br>%{x} routes<extra></extra>",
+        ))
+        fig4.update_layout(**DARK,
+            title="Distribution par aéroport cible",
+            xaxis=dict(visible=False), yaxis=dict(tickfont=dict(size=14, color="#fafafa")),
+            height=320, margin=dict(r=80))
         r2.plotly_chart(fig4, use_container_width=True)
 
         st.subheader("Low-cost vs Réseau par aéroport")
