@@ -44,7 +44,8 @@ SIGNAL_COLORS    = {"Saturé":"#e74c3c","Tendu":"#e67e22","Actif":"#3498db",
                     "Modéré":"#f1c40f","Creux":"#95a5a6"}
 TRENDS_COLORS    = {"Très fort":"#e74c3c","Fort":"#e67e22","Modéré":"#f1c40f",
                     "Faible":"#2ecc71","Hors saison":"#95a5a6"}
-MARKET_COLORS    = {"UK":"#3498db","Espagne":"#e74c3c","Italie":"#2ecc71","France":"#9b59b6"}
+MARKET_COLORS    = {"France":"#4f8ef7","UK":"#e74c3c","Italie":"#2ecc71","Espagne":"#e67e22"}
+AIRPORT_COLORS   = {"CDG":"#6b7fa8","BVA":"#9aaacf","ORY":"#3d5275"}
 
 
 # ── Loaders ──────────────────────────────────────────────────────────────
@@ -275,6 +276,7 @@ with tab1:
         mkt = df1.groupby("source_market").size().reset_index(name="routes")
         fig3 = px.bar(mkt, x="source_market", y="routes", color="source_market",
                       title="Routes par marché source", height=320,
+                      color_discrete_map=MARKET_COLORS,
                       labels={"source_market":"Marché","routes":"Nb routes"})
         fig3.update_layout(**DARK, showlegend=False)
         r1.plotly_chart(fig3, use_container_width=True)
@@ -282,7 +284,7 @@ with tab1:
         apt = df1.groupby("arr_iata").size().reset_index(name="routes")
         fig4 = px.pie(apt, names="arr_iata", values="routes",
                       title="Distribution par aéroport cible", height=320,
-                      color_discrete_sequence=["#4f8ef7","#e74c3c","#2ecc71"])
+                      color_discrete_map=AIRPORT_COLORS)
         fig4.update_layout(**DARK)
         r2.plotly_chart(fig4, use_container_width=True)
 
@@ -315,7 +317,6 @@ with tab2:
             "Espagne": {"Madrid": 0.072, "Catalogne": 0.072, "Baléares": 0.036},
         }
         _MARKET_MAX = {"France": 0.40, "UK": 0.22, "Italie": 0.20, "Espagne": 0.18}
-        _MARKET_COLORS = {"France": "#4f8ef7", "UK": "#e74c3c", "Italie": "#2ecc71", "Espagne": "#e67e22"}
 
         def _mkt_idx(zones_str, market):
             if not zones_str or zones_str == "—":
@@ -349,7 +350,7 @@ with tab2:
             st.plotly_chart(fig, use_container_width=True)
         else:
             _market = _MKT_MAP[market_sel]
-            _color  = _MARKET_COLORS[_market]
+            _color  = MARKET_COLORS[_market]
             _vals   = [_mkt_idx(str(r.get("zones_detail","")), _market) for _, r in df2.iterrows()]
             fig = go.Figure()
             fig.add_trace(go.Bar(
