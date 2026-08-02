@@ -258,11 +258,12 @@ st.divider()
 
 # ── Tabs ─────────────────────────────────────────────────────────────────
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🛫 P1 — Routes",
     "📅 P2 — Calendriers",
     "🏨 P3 — Hôtels",
     "📈 P4 — Trends",
+    "🎯 Signal Consolidé",
     "📋 Données brutes",
 ])
 
@@ -518,8 +519,174 @@ cherchaient activement "Paris airport transfer" autour de la semaine du 29 juin.
         st.dataframe(display_synth, use_container_width=True, height=400, hide_index=True)
 
 
-# ══ TAB 5 — Données brutes ════════════════════════════════════════════════
+# ══ TAB 5 — Signal Consolidé ══════════════════════════════════════════════
 with tab5:
+    st.markdown(
+        "Combinaison pondérée des 4 Pistes selon les horizons définis dans le document de cadrage OzeRoute. "
+        "L'indice est relatif **(0 → 100)**, pas un nombre de courses."
+    )
+
+    # ── Horizon selector ────────────────────────────────────────────────
+    try:
+        horizon = st.pills(
+            "Horizon",
+            options=["⚡ Tactique (1-4 sem.)", "📅 Stratégique (3-6 mois)"],
+            default="⚡ Tactique (1-4 sem.)",
+        )
+    except Exception:
+        horizon = st.radio(
+            "Horizon", ["⚡ Tactique (1-4 sem.)", "📅 Stratégique (3-6 mois)"],
+            horizontal=True, label_visibility="collapsed",
+        )
+
+    is_tactique = horizon is None or "Tactique" in (horizon or "")
+
+    if is_tactique:
+        W = {"P1": 0.35, "P2": 0.20, "P3": 0.25, "P4": 0.15}
+        NORM = 0.95   # météo (5%) absente → normalisé sur 95%
+        weight_rows = [
+            ("🛫 P1 — Programmes de vols",    "35 %", "Pilote principal — vols confirmés"),
+            ("🏨 P3 — Disponibilité hôtelière","25 %", "La ville se remplit — signal 2-4 sem."),
+            ("📅 P2 — Calendriers scolaires",  "20 %", "Toujours pertinent, déjà intégré"),
+            ("📈 P4 — Google Trends",          "15 %", "Intention de voyage à quelques semaines"),
+            ("🌤 Météo prévue",                "5 %",  "Non implémentée — poids redistribué"),
+        ]
+    else:
+        W = {"P1": 0.35, "P2": 0.40, "P3": 0.07, "P4": 0.03}
+        NORM = 0.85   # saisonnalité (15%) absente → normalisé sur 85%
+        weight_rows = [
+            ("📅 P2 — Calendriers scolaires",  "40 %", "Le socle — certain, publié 1 an à l'avance"),
+            ("🛫 P1 — Programmes de vols",    "35 %", "Capacités connues des mois avant"),
+            ("📊 Saisonnalité historique",     "15 %", "Non implémentée — poids redistribué"),
+            ("🏨 P3 — Disponibilité hôtelière","7 %",  "Signal trop court pour cet horizon"),
+            ("📈 P4 — Google Trends",          "3 %",  "Quasi inutile à plusieurs mois"),
+        ]
+
+    with st.expander("📐 Pondération appliquée (document de cadrage OzeRoute)", expanded=False):
+        st.dataframe(
+            pd.DataFrame(weight_rows, columns=["Facteur", "Poids", "Justification"]),
+            use_container_width=True, hide_index=True,
+        )
+
+    # ── Consolidation per week ───────────────────────────────────────────
+    if df2_raw is None or df2_raw.empty:
+        st.warning("Lancez le pipeline pour générer les données (base de calcul : P2).")
+    else:
+        p1_score = 0.70 if (df1 is not None and not df1.empty) else 0.0
+
+        def _signal_label(idx):
+            if idx >= 80: return "Pic de demande",   "#e74c3c", "Activer capacité maximale — recruter chauffeurs temporaires"
+            if idx >= 65: return "Demande forte",    "#e67e22", "Renforcer la flotte — demande confirmée"
+            if idx >= 50: return "Demande active",   "#f1c40f", "Niveau nominal — surveiller l'évolution"
+            if idx >= 30: return "Demande modérée",  "#3498db", "Pas d'action immédiate — préparer la montée"
+            return              "Hors saison",       "#95a5a6", "Creux — campagnes promotionnelles possibles"
+
+        rows_s = []
+        for _, row in df2_raw.iterrows():
+            lbl = row["label_semaine"]
+            p2 = float(row["index_superposition"])
+
+            p3 = 0.0
+            if df3 is not None and not df3.empty:
+                m3 = df3[df3["label_semaine"] == lbl]["taux_occupation_estime"]
+                if len(m3): p3 = float(m3.mean())
+
+            p4 = 0.0
+            if df4_synth is not None and not df4_synth.empty:
+                m4 = df4_synth[df4_synth["label_semaine"] == lbl]["trends_index"]
+                if len(m4): p4 = float(m4.iloc[0]) / 100.0
+
+            raw = W["P1"]*p1_score + W["P2"]*p2 + W["P3"]*p3 + W["P4"]*p4
+            idx = round(min(raw / NORM * 100, 100), 1)
+            signal, color, reco = _signal_label(idx)
+
+            rows_s.append({
+                "label_semaine": lbl, "semaine_debut": row["semaine_debut"],
+                "index": idx, "signal": signal, "color": color, "reco": reco,
+                "p1_pts": round(W["P1"] * p1_score / NORM * 100, 1),
+                "p2_pts": round(W["P2"] * p2      / NORM * 100, 1),
+                "p3_pts": round(W["P3"] * p3      / NORM * 100, 1),
+                "p4_pts": round(W["P4"] * p4      / NORM * 100, 1),
+            })
+
+        df_cs = pd.DataFrame(rows_s)
+
+        # Apply date filter
+        if date_range and len(date_range) == 2:
+            s, e = pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1])
+            df_cs = df_cs[(df_cs["semaine_debut"] >= s) & (df_cs["semaine_debut"] <= e)]
+
+        if df_cs.empty:
+            st.warning("Aucune semaine dans la période sélectionnée.")
+        else:
+            # KPIs
+            cs1, cs2, cs3, cs4 = st.columns(4)
+            cs1.metric("Indice moyen",       f"{df_cs['index'].mean():.0f} / 100")
+            cs2.metric("Semaines Pic 🔴",    len(df_cs[df_cs['signal']=="Pic de demande"]))
+            cs3.metric("Semaines Fortes 🟠", len(df_cs[df_cs['signal']=="Demande forte"]))
+            cs4.metric("Semaines Creuses ⚪",len(df_cs[df_cs['signal']=="Hors saison"]))
+
+            # Index bar chart
+            fig_cs = go.Figure()
+            fig_cs.add_hrect(y0=80, y1=105, fillcolor="rgba(231,76,60,0.07)",  line_width=0)
+            fig_cs.add_hrect(y0=65, y1=80,  fillcolor="rgba(230,126,34,0.07)", line_width=0)
+            fig_cs.add_hrect(y0=50, y1=65,  fillcolor="rgba(241,196,15,0.07)", line_width=0)
+            fig_cs.add_trace(go.Bar(
+                x=df_cs["label_semaine"], y=df_cs["index"],
+                marker_color=df_cs["color"].tolist(),
+                text=df_cs["index"].apply(lambda v: f"{v:.0f}"),
+                textposition="outside",
+                hovertemplate="<b>%{x}</b><br>Indice : %{y:.1f}/100<extra></extra>",
+            ))
+            for lvl, col, lbl in [(80,"#e74c3c","Pic≥80"), (65,"#e67e22","Fort≥65"), (50,"#f1c40f","Actif≥50")]:
+                fig_cs.add_hline(y=lvl, line_dash="dot", line_color=col, line_width=1,
+                                 annotation_text=lbl, annotation_position="top left",
+                                 annotation_font_color=col)
+            fig_cs.update_layout(**DARK,
+                title=f"Indice de demande consolidé — {'Tactique' if is_tactique else 'Stratégique'} (0→100)",
+                xaxis_title="Semaine", yaxis=dict(range=[0, 110], title="Indice"),
+                showlegend=False, height=420,
+            )
+            st.plotly_chart(fig_cs, use_container_width=True)
+
+            # Contribution stacked bar
+            with st.expander("📊 Contribution de chaque Piste à l'indice"):
+                fig_contrib = go.Figure()
+                for col_key, color, name in [
+                    ("p1_pts","#4f8ef7","P1 — Vols"),
+                    ("p2_pts","#2ecc71","P2 — Calendriers"),
+                    ("p3_pts","#e67e22","P3 — Hôtels"),
+                    ("p4_pts","#9b59b6","P4 — Trends"),
+                ]:
+                    fig_contrib.add_trace(go.Bar(
+                        x=df_cs["label_semaine"], y=df_cs[col_key],
+                        name=name, marker_color=color,
+                        hovertemplate=f"<b>%{{x}}</b><br>{name} : %{{y:.1f}} pts<extra></extra>",
+                    ))
+                fig_contrib.update_layout(**DARK, barmode="stack",
+                    title="Décomposition de l'indice par Piste",
+                    xaxis_title="Semaine", yaxis_title="Points contribués",
+                    height=350,
+                )
+                st.plotly_chart(fig_contrib, use_container_width=True)
+
+            # Recommendations table
+            st.subheader("Recommandations opérationnelles semaine par semaine")
+            for _, row in df_cs.iterrows():
+                c1, c2, c3, c4 = st.columns([2, 1, 2, 5])
+                c1.markdown(f"**{row['label_semaine']}**")
+                c2.markdown(
+                    f'<span style="background:{row["color"]};color:{"#000" if row["signal"] in ("Demande active","Demande modérée") else "#fff"};'
+                    f'padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">'
+                    f'{row["index"]:.0f}</span>',
+                    unsafe_allow_html=True,
+                )
+                c3.caption(row["signal"])
+                c4.caption(row["reco"])
+
+
+# ══ TAB 6 — Données brutes ════════════════════════════════════════════════
+with tab6:
     tabs_data = st.tabs(["P2 Calendrier","P1 Routes","P3 Hôtels","P4 Trends"])
 
     with tabs_data[0]:
