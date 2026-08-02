@@ -4,6 +4,7 @@ OzeRoute — Dashboard de prédiction demande
 """
 
 import os, sys, subprocess
+from datetime import date as _date
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -156,8 +157,10 @@ with st.sidebar:
 
     df2_raw = load_piste2()
     if df2_raw is not None:
-        min_d = df2_raw["semaine_debut"].min().date()
-        max_d = df2_raw["semaine_fin"].max().date()
+        min_d   = df2_raw["semaine_debut"].min().date()
+        max_d   = df2_raw["semaine_fin"].max().date()
+        today   = _date.today()
+        start_d = max(min_d, today)   # default start = today (clipped to data range)
         st.markdown("""
 <div style="background:#1a2332;border:1.5px solid #4f8ef7;border-radius:10px;
             padding:12px 14px 6px 14px;margin-bottom:8px;">
@@ -166,7 +169,7 @@ with st.sidebar:
 </div>""", unsafe_allow_html=True)
         date_range = st.date_input(
             "Période",
-            value=(min_d, max_d),
+            value=(start_d, max_d),
             min_value=min_d,
             max_value=max_d,
             help="Filtrer toutes les pistes sur cette période",
