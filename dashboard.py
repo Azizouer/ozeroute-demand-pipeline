@@ -18,16 +18,13 @@ st.set_page_config(page_title="OzeRoute — Demand Pipeline", page_icon="✈️"
 
 st.markdown("""
 <style>
-[data-testid="stSidebar"] { background:#0d1117; }
-.metric-box { background:#1e2130; border-radius:10px; padding:14px 18px;
+.metric-box { border-radius:10px; padding:14px 18px;
                border-left:4px solid #4f8ef7; margin-bottom:8px; }
 .badge { padding:2px 10px; border-radius:20px; font-size:11px;
          font-weight:600; display:inline-block; margin:2px 0; }
 [data-testid="stDateInput"] input {
     border: 1.5px solid #4f8ef7 !important;
     border-radius: 6px !important;
-    background: #111827 !important;
-    color: #e0e6f0 !important;
     font-weight: 600 !important;
 }
 .badge-red    { background:#e74c3c; color:#fff; }
@@ -38,7 +35,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-DARK = {"paper_bgcolor":"#0e1117","plot_bgcolor":"#0e1117","font_color":"#fafafa"}
+DARK = {"paper_bgcolor":"rgba(0,0,0,0)", "plot_bgcolor":"rgba(0,0,0,0)"}
 INTENSITY_COLORS = {"Pic":"#e74c3c","Fort":"#e67e22","Modéré":"#f1c40f",
                     "Faible":"#2ecc71","Hors saison":"#95a5a6"}
 SIGNAL_COLORS    = {"Saturé":"#e74c3c","Tendu":"#e67e22","Actif":"#3498db",
@@ -162,7 +159,7 @@ with st.sidebar:
         today   = _date.today()
         start_d = max(min_d, today)   # default start = today (clipped to data range)
         st.markdown("""
-<div style="background:#1a2332;border:1.5px solid #4f8ef7;border-radius:10px;
+<div style="border:1.5px solid #4f8ef7;border-radius:10px;
             padding:12px 14px 6px 14px;margin-bottom:8px;">
 <span style="color:#4f8ef7;font-size:13px;font-weight:700;letter-spacing:.5px;">
 📆 PÉRIODE D'ANALYSE</span>
@@ -386,7 +383,7 @@ with tab2:
                 "ES":1 if "Espagne" in a else 0, "FR":1 if "France" in a else 0,
                 "IT":1 if "Italie" in a else 0,  "UK":1 if "UK" in a else 0})
         hm_df = pd.DataFrame(hm_data).set_index("Semaine")
-        fig2 = px.imshow(hm_df.T, color_continuous_scale=[[0,"#1e2130"],[1,"#4f8ef7"]],
+        fig2 = px.imshow(hm_df.T, color_continuous_scale=[[0,"#d0d8f0"],[1,"#4f8ef7"]],
                          aspect="auto", height=180,
                          labels=dict(x="Semaine",y="Marché",color="Actif"))
         fig2.update_layout(**DARK, coloraxis_showscale=False)
