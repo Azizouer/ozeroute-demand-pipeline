@@ -289,7 +289,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📅 P2 — Calendriers",
     "🏨 P3 — Hôtels",
     "📈 P4 — Trends",
-    "🎯 Signal Consolidé",
+    "🎯 Synthèse Prédictive",
     "📋 Données brutes",
 ])
 
@@ -545,7 +545,7 @@ cherchaient activement "Paris airport transfer" autour de la semaine du 29 juin.
         st.dataframe(display_synth, use_container_width=True, height=400, hide_index=True)
 
 
-# ══ TAB 5 — Signal Consolidé ══════════════════════════════════════════════
+# ══ TAB 5 — Synthèse Prédictive ══════════════════════════════════════════════
 with tab5:
     st.markdown(
         "Combinaison pondérée des 4 Pistes selon les horizons définis dans le document de cadrage OzeRoute. "
