@@ -20,8 +20,6 @@ st.markdown("""
 <style>
 .metric-box { border-radius:10px; padding:14px 18px;
                border-left:4px solid #4f8ef7; margin-bottom:8px; }
-header[data-testid="stHeader"] { visibility: hidden; }
-[data-testid="stToolbar"] { visibility: hidden; }
 .badge { padding:2px 10px; border-radius:20px; font-size:11px;
          font-weight:600; display:inline-block; margin:2px 0; }
 [data-testid="stDateInput"] input {
