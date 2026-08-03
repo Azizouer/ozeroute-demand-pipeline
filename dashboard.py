@@ -119,17 +119,32 @@ with st.sidebar:
         log_lines = []
         errors    = []
 
-        def run_piste(module_path, label):
-            import importlib.util, traceback
-            try:
-                spec = importlib.util.spec_from_file_location("_piste", ROOT / module_path)
-                mod  = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(mod)
-                mod.main()
+        def run_piste(module_path, label, timeout=60):
+            import importlib.util, traceback, threading
+            holder = [None]  # [exception | "ok" | None=timeout]
+
+            def _run():
+                try:
+                    spec = importlib.util.spec_from_file_location("_piste", ROOT / module_path)
+                    mod  = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    mod.main()
+                    holder[0] = "ok"
+                except Exception as e:
+                    holder[0] = (e, traceback.format_exc())
+
+            t = threading.Thread(target=_run, daemon=True)
+            t.start()
+            t.join(timeout=timeout)
+
+            if t.is_alive():
+                log_lines.append(f"⏱️ {label} : timeout ({timeout}s) — résultat partiel possible")
+            elif holder[0] == "ok":
                 log_lines.append(f"✅ {label} terminée")
-            except Exception as e:
+            elif holder[0] is not None:
+                e, tb = holder[0]
                 errors.append(f"❌ {label} : {e}")
-                log_lines.append(traceback.format_exc())
+                log_lines.append(tb)
 
         with st.spinner("Pipeline en cours…"):
             if eff_airlabs:
