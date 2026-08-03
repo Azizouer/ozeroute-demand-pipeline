@@ -90,11 +90,18 @@ with st.sidebar:
 
     st.markdown("### ⚙️ Lancer le pipeline")
     # Pre-fill from Streamlit Cloud secrets / env vars if available
+    # Read keys: st.secrets (Streamlit Cloud) → os.environ → empty
+    def _get_secret(key):
+        try:
+            return st.secrets.get(key, os.environ.get(key, ""))
+        except Exception:
+            return os.environ.get(key, "")
+
     api_key = st.text_input("Clé AirLabs (optionnelle)", type="password",
-                            value=os.environ.get("AIRLABS_API_KEY", ""),
+                            value=_get_secret("AIRLABS_API_KEY"),
                             placeholder="sk-airlabs-...")
     rapidapi_key = st.text_input("Clé RapidAPI (optionnelle)", type="password",
-                                 value=os.environ.get("RAPIDAPI_KEY", ""),
+                                 value=_get_secret("RAPIDAPI_KEY"),
                                  placeholder="rapidapi-key...")
     col_p3, col_p4 = st.columns(2)
     use_live_hotels = col_p3.toggle("Hôtels live", value=False, help="Nécessite RAPIDAPI_KEY")
@@ -102,12 +109,15 @@ with st.sidebar:
                                     help="Lancer localement — Google bloque les datacenters")
 
     if st.button("▶  Lancer", use_container_width=True, type="primary"):
-        # Set env vars in-process so imported modules pick them up
-        if api_key:      os.environ["AIRLABS_API_KEY"] = api_key
-        if rapidapi_key: os.environ["RAPIDAPI_KEY"]    = rapidapi_key
+        # Resolve effective keys: input field → secrets → env
+        eff_airlabs  = api_key      or _get_secret("AIRLABS_API_KEY")
+        eff_rapidapi = rapidapi_key or _get_secret("RAPIDAPI_KEY")
+
+        if eff_airlabs:  os.environ["AIRLABS_API_KEY"] = eff_airlabs
+        if eff_rapidapi: os.environ["RAPIDAPI_KEY"]    = eff_rapidapi
 
         log_lines = []
-        errors     = []
+        errors    = []
 
         def run_piste(module_path, label):
             import importlib.util, traceback
@@ -122,13 +132,13 @@ with st.sidebar:
                 log_lines.append(traceback.format_exc())
 
         with st.spinner("Pipeline en cours…"):
-            if api_key:
-                run_piste("piste1_vols/piste1_routes.py",          "Piste 1 — Vols")
+            if eff_airlabs:
+                run_piste("piste1_vols/piste1_routes.py",       "Piste 1 — Vols")
             else:
                 log_lines.append("⚠️  Piste 1 ignorée — clé AirLabs absente")
-            run_piste("piste2_calendriers/overlap_index.py",    "Piste 2 — Calendriers")
-            run_piste("piste3_hotels/hotel_availability.py",    "Piste 3 — Hôtels")
-            run_piste("piste4_trends/google_trends.py",         "Piste 4 — Trends")
+            run_piste("piste2_calendriers/overlap_index.py", "Piste 2 — Calendriers")
+            run_piste("piste3_hotels/hotel_availability.py", "Piste 3 — Hôtels")
+            run_piste("piste4_trends/google_trends.py",      "Piste 4 — Trends")
 
             # Combiner
             try:
@@ -141,13 +151,14 @@ with st.sidebar:
             except Exception as e:
                 log_lines.append(f"⚠️  Combineur : {e}")
 
+        st.cache_data.clear()
         if errors:
             st.error("\n".join(errors))
         else:
-            st.success("✅ Pipeline terminé")
-        st.cache_data.clear()
+            st.success("✅ Pipeline terminé — rechargement…")
         with st.expander("Log"):
             st.code("\n".join(log_lines))
+        st.rerun()
 
     st.divider()
     st.markdown("### 🔍 Filtres")
