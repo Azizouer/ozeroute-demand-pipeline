@@ -3,7 +3,7 @@ OzeRoute — Dashboard de prédiction demande
 4 Pistes intégrées : Vols / Calendriers / Hôtels / Trends
 """
 
-import os, sys, subprocess
+import io, os, sys, subprocess
 from datetime import date as _date
 import pandas as pd
 import plotly.express as px
@@ -79,6 +79,49 @@ def load_piste4():
     df["label_semaine"] = df["semaine_debut"].dt.strftime("%d %b") + " – " + df["semaine_fin"].dt.strftime("%d %b")
     return df
 
+@st.cache_data(ttl=10)
+def load_piste5():
+    p = OUTPUT_DIR / "ozeroute_saisonnalite_historique.csv"
+    if not p.exists(): return None
+    df = pd.read_csv(p, parse_dates=["semaine_debut","semaine_fin"])
+    df["label_semaine"] = df["semaine_debut"].dt.strftime("%d %b") + " – " + df["semaine_fin"].dt.strftime("%d %b")
+    return df
+
+@st.cache_data(ttl=10)
+def load_piste6():
+    p = OUTPUT_DIR / "ozeroute_meteo_prevue.csv"
+    if not p.exists(): return None
+    df = pd.read_csv(p, parse_dates=["semaine_debut","semaine_fin"])
+    df["label_semaine"] = df["semaine_debut"].dt.strftime("%d %b") + " – " + df["semaine_fin"].dt.strftime("%d %b")
+    return df
+
+@st.cache_data(ttl=5)
+def load_commandes():
+    p = OUTPUT_DIR / "ozeroute_commandes_reelles.csv"
+    if not p.exists(): return None
+    df = pd.read_csv(p, parse_dates=["semaine_debut"])
+    df["label_semaine"] = df["semaine_debut"].dt.strftime("%d %b")
+    return df
+
+@st.cache_data(ttl=5)
+def load_calibration():
+    import json
+    p = OUTPUT_DIR / "ozeroute_calibration.json"
+    if not p.exists(): return {}
+    with open(p, encoding="utf-8") as f:
+        return json.load(f)
+
+@st.cache_data(ttl=5)
+def load_optimized_weights():
+    import json
+    p = OUTPUT_DIR / "ozeroute_poids_optimises.json"
+    if not p.exists(): return {}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return data if data.get("statut") == "calibre" else {}
+    except Exception:
+        return {}
+
 
 # ── Sidebar ───────────────────────────────────────────────────────────────
 
@@ -151,9 +194,11 @@ with st.sidebar:
                 run_piste("piste1_vols/piste1_routes.py",       "Piste 1 — Vols")
             else:
                 log_lines.append("⚠️  Piste 1 ignorée — clé AirLabs absente")
-            run_piste("piste2_calendriers/overlap_index.py", "Piste 2 — Calendriers")
-            run_piste("piste3_hotels/hotel_availability.py", "Piste 3 — Hôtels")
-            run_piste("piste4_trends/google_trends.py",      "Piste 4 — Trends")
+            run_piste("piste2_calendriers/overlap_index.py",        "Piste 2 — Calendriers")
+            run_piste("piste3_hotels/hotel_availability.py",        "Piste 3 — Hôtels")
+            run_piste("piste4_trends/google_trends.py",             "Piste 4 — Trends")
+            run_piste("piste5_saisonnalite/historical_seasonality.py", "Piste 5 — Saisonnalité")
+            run_piste("piste6_meteo/weather_forecast.py",           "Piste 6 — Météo")
 
             # Combiner
             try:
@@ -183,27 +228,19 @@ with st.sidebar:
         min_d   = df2_raw["semaine_debut"].min().date()
         max_d   = df2_raw["semaine_fin"].max().date()
         today   = _date.today()
-        start_d = max(min_d, today)   # default start = today (clipped to data range)
         st.markdown("""
 <div style="border:1.5px solid #4f8ef7;border-radius:10px;
             padding:12px 14px 6px 14px;margin-bottom:8px;">
 <span style="color:#4f8ef7;font-size:13px;font-weight:700;letter-spacing:.5px;">
 📆 PÉRIODE D'ANALYSE</span>
 </div>""", unsafe_allow_html=True)
-        date_range = st.date_input(
-            "Période",
-            value=(start_d, max_d),
-            min_value=min_d,
-            max_value=max_d,
-            help="Filtrer toutes les pistes sur cette période",
-            label_visibility="collapsed",
-        )
-        if isinstance(date_range, tuple) and len(date_range) == 2:
-            st.markdown(
-                f'<p style="color:#8899bb;font-size:11px;margin:-4px 0 8px 2px;">'
-                f'🗓 {date_range[0].strftime("%d %b %Y")} &nbsp;→&nbsp; {date_range[1].strftime("%d %b %Y")}</p>',
-                unsafe_allow_html=True
-            )
+
+        start_d = st.date_input("Du", value=min_d, min_value=min_d, max_value=max_d)
+        end_d   = st.date_input("Au", value=max_d, min_value=min_d, max_value=max_d)
+        if end_d < start_d:
+            st.error("La date de fin doit être après la date de début.")
+            end_d = max_d
+        date_range = (start_d, end_d)
     else:
         date_range = None
 
@@ -230,6 +267,9 @@ with st.sidebar:
     piste_badge(2, "Calendriers", df2_raw is not None)
     piste_badge(3, "Hôtels", load_piste3() is not None)
     piste_badge(4, "Trends", load_piste4() is not None)
+    piste_badge(5, "Saisonnalité", load_piste5() is not None)
+    piste_badge(6, "Météo", load_piste6() is not None)
+    piste_badge(7, "Import Réel", load_commandes() is not None)
 
 
 # ── KPIs globaux ─────────────────────────────────────────────────────────
@@ -240,6 +280,8 @@ df2 = df2_raw.copy() if df2_raw is not None else None
 df1 = load_piste1()
 df3 = load_piste3()
 df4 = load_piste4()
+df5 = load_piste5()
+df6 = load_piste6()
 
 if df2 is None:
     st.info("Aucune donnée — lancez le pipeline via le panneau de gauche.")
@@ -284,13 +326,16 @@ st.divider()
 
 # ── Tabs ─────────────────────────────────────────────────────────────────
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "🛫 P1 — Routes",
     "📅 P2 — Calendriers",
     "🏨 P3 — Hôtels",
     "📈 P4 — Trends",
+    "📊 P5 — Saisonnalité",
+    "🌤 P6 — Météo",
     "🎯 Synthèse Prédictive",
     "📋 Données brutes",
+    "📥 Import Réel & Calibration",
 ])
 
 
@@ -545,8 +590,117 @@ cherchaient activement "Paris airport transfer" autour de la semaine du 29 juin.
         st.dataframe(display_synth, use_container_width=True, height=400, hide_index=True)
 
 
-# ══ TAB 5 — Synthèse Prédictive ══════════════════════════════════════════════
+# ══ TAB 5 — P5 Saisonnalité ══════════════════════════════════════════════
 with tab5:
+    if df5 is None or df5.empty:
+        st.info("Pas de données Piste 5 — lancez le pipeline.")
+    else:
+        st.markdown("**Indice de saisonnalité historique** calibré sur le trafic passagers ADP 2022-2024. "
+                    "Signal de fond (15 % dans l'horizon stratégique 3-6 mois).")
+        df5_f = df5.copy()
+        if date_range and len(date_range) == 2:
+            s, e = pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1])
+            df5_f = df5_f[(df5_f["semaine_debut"] >= s) & (df5_f["semaine_fin"] <= e)]
+
+        SAISON_COLORS = {
+            "Pic saisonnier":      "#e74c3c",
+            "Haute saison":        "#e67e22",
+            "Saison intermédiaire":"#f1c40f",
+            "Basse saison":        "#2ecc71",
+            "Creux":               "#95a5a6",
+        }
+        fig_s5 = go.Figure()
+        for label, color in SAISON_COLORS.items():
+            sub = df5_f[df5_f["label_saison"] == label]
+            if sub.empty: continue
+            fig_s5.add_trace(go.Bar(
+                x=sub["label_semaine"], y=sub["saison_index"],
+                name=label, marker_color=color,
+                hovertemplate="<b>%{x}</b><br>Index : %{y:.2f}<extra></extra>",
+            ))
+        fig_s5.update_layout(**DARK, barmode="overlay",
+            title="Indice de saisonnalité hebdomadaire (P5)",
+            xaxis_title="Semaine", yaxis=dict(range=[0, 1.1]), height=380)
+        st.plotly_chart(fig_s5, use_container_width=True)
+
+        with st.expander("ℹ️ Source et méthode"):
+            st.markdown("""
+**Source :** Rapports mensuels de trafic passagers ADP (adp.aeroports.fr) — moyennes 2022-2024.
+
+**Méthode :** Indice mensuel normalisé sur 1.0 = pic absolu (août), avec boost événementiel
+sur les semaines à fort signal historique (Toussaint S43, fêtes S52).
+
+**Usage :** Signal de tendance de fond — ne jamais utiliser seul. Croiser avec P2 (calendriers)
+pour distinguer "les hôtels sont pleins parce que c'est l'été" vs "parce qu'un marché spécifique est en vacances".
+""")
+
+        st.subheader("Détail semaine par semaine")
+        for _, row in df5_f.iterrows():
+            c1, c2, c3 = st.columns([2, 2, 3])
+            c1.markdown(f"**{row['label_semaine']}**")
+            color = SAISON_COLORS.get(row["label_saison"], "#7f8c8d")
+            c2.markdown(
+                f'<span style="background:{color};color:#fff;padding:3px 10px;'
+                f'border-radius:20px;font-size:12px;font-weight:700;">{row["label_saison"]}</span>',
+                unsafe_allow_html=True)
+            c3.caption(f"Index : {row['saison_index']:.2f}  —  S{row['iso_week']:02d}")
+
+
+# ══ TAB 6 — P6 Météo ══════════════════════════════════════════════════════
+with tab6:
+    if df6 is None or df6.empty:
+        st.info("Pas de données Piste 6 — lancez le pipeline.")
+    else:
+        st.markdown("**Prévision météo** par aéroport — signal d'affinage tactique (5 % horizon 1-4 semaines). "
+                    "Données Live : Open-Meteo (gratuit, sans clé). Fallback calibré au-delà de J+14.")
+        df6_f = df6.copy()
+        if date_range and len(date_range) == 2:
+            s, e = pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1])
+            df6_f = df6_f[(df6_f["semaine_debut"] >= s) & (df6_f["semaine_fin"] <= e)]
+
+        METEO_COLORS = {
+            "Très favorable":  "#2ecc71",
+            "Favorable":       "#3498db",
+            "Neutre":          "#95a5a6",
+            "Défavorable":     "#e67e22",
+            "Très défavorable":"#e74c3c",
+        }
+        # Impact chart per airport
+        fig_m = go.Figure()
+        for apt in ["CDG", "ORY", "BVA"]:
+            sub = df6_f[df6_f["airport"] == apt]
+            if sub.empty: continue
+            fig_m.add_trace(go.Bar(
+                x=sub["label_semaine"], y=sub["meteo_impact"],
+                name=apt, marker_color=AIRPORT_COLORS.get(apt, "#7f8c8d"),
+                hovertemplate=f"<b>%{{x}}</b><br>{apt} impact : %{{y:+.2f}}<extra></extra>",
+            ))
+        fig_m.add_hline(y=0, line_color="#ffffff", line_width=1, line_dash="dot")
+        fig_m.update_layout(**DARK, barmode="group",
+            title="Impact météo par aéroport (−0.15 → +0.15)",
+            xaxis_title="Semaine", yaxis_title="Impact", height=360)
+        st.plotly_chart(fig_m, use_container_width=True)
+
+        # Detail table
+        st.subheader("Détail météo par semaine et aéroport")
+        latest_week = df6_f["semaine_debut"].min()
+        pivot_rows = []
+        for lbl in df6_f["label_semaine"].unique():
+            row_data = {"Semaine": lbl}
+            for apt in ["CDG", "ORY", "BVA"]:
+                sub = df6_f[(df6_f["label_semaine"] == lbl) & (df6_f["airport"] == apt)]
+                if len(sub):
+                    r = sub.iloc[0]
+                    row_data[f"{apt} 🌧 mm"]  = r["rain_mm"]
+                    row_data[f"{apt} 🌡 °C"]  = r["temp_c"]
+                    row_data[f"{apt} impact"] = f"{r['meteo_impact']:+.2f}"
+                    row_data[f"{apt} source"] = "🔴 Live" if "live" in r["source"].lower() else "⚪ Calibré"
+            pivot_rows.append(row_data)
+        st.dataframe(pd.DataFrame(pivot_rows), use_container_width=True, hide_index=True)
+
+
+# ══ TAB 7 — Synthèse Prédictive ══════════════════════════════════════════════
+with tab7:
     st.markdown(
         "Combinaison pondérée des 4 Pistes selon les horizons définis dans le document de cadrage OzeRoute. "
         "L'indice est relatif **(0 → 100)**, pas un nombre de courses."
@@ -567,26 +721,47 @@ with tab5:
 
     is_tactique = horizon is None or "Tactique" in (horizon or "")
 
+    opt = load_optimized_weights()
+    using_optimized = bool(opt)
+
+    DEFAULT_TACT  = {"P1": 0.35, "P2": 0.20, "P3": 0.25, "P4": 0.15, "P6": 0.05}
+    DEFAULT_STRAT = {"P1": 0.35, "P2": 0.40, "P3": 0.07, "P4": 0.03, "P5": 0.15}
+
     if is_tactique:
-        W = {"P1": 0.35, "P2": 0.20, "P3": 0.25, "P4": 0.15}
-        NORM = 0.95   # météo (5%) absente → normalisé sur 95%
+        W = opt.get("tactique", DEFAULT_TACT) if using_optimized else DEFAULT_TACT
+        NORM = 1.0
         weight_rows = [
-            ("🛫 P1 — Programmes de vols",    "35 %", "Pilote principal — vols confirmés"),
-            ("🏨 P3 — Disponibilité hôtelière","25 %", "La ville se remplit — signal 2-4 sem."),
-            ("📅 P2 — Calendriers scolaires",  "20 %", "Toujours pertinent, déjà intégré"),
-            ("📈 P4 — Google Trends",          "15 %", "Intention de voyage à quelques semaines"),
-            ("🌤 Météo prévue",                "5 %",  "Non implémentée — poids redistribué"),
+            ("🛫 P1 — Programmes de vols",     f"{W.get('P1',0)*100:.0f} %", "Vols confirmés"),
+            ("🏨 P3 — Disponibilité hôtelière", f"{W.get('P3',0)*100:.0f} %", "Signal 2-4 sem."),
+            ("📅 P2 — Calendriers scolaires",   f"{W.get('P2',0)*100:.0f} %", "Superposition marchés"),
+            ("📈 P4 — Google Trends",           f"{W.get('P4',0)*100:.0f} %", "Intention de voyage"),
+            ("🌤 P6 — Météo prévue",            f"{W.get('P6',0)*100:.0f} %", "Open-Meteo live"),
         ]
     else:
-        W = {"P1": 0.35, "P2": 0.40, "P3": 0.07, "P4": 0.03}
-        NORM = 0.85   # saisonnalité (15%) absente → normalisé sur 85%
+        W = opt.get("strategique", DEFAULT_STRAT) if using_optimized else DEFAULT_STRAT
+        NORM = 1.0
         weight_rows = [
-            ("📅 P2 — Calendriers scolaires",  "40 %", "Le socle — certain, publié 1 an à l'avance"),
-            ("🛫 P1 — Programmes de vols",    "35 %", "Capacités connues des mois avant"),
-            ("📊 Saisonnalité historique",     "15 %", "Non implémentée — poids redistribué"),
-            ("🏨 P3 — Disponibilité hôtelière","7 %",  "Signal trop court pour cet horizon"),
-            ("📈 P4 — Google Trends",          "3 %",  "Quasi inutile à plusieurs mois"),
+            ("📅 P2 — Calendriers scolaires",   f"{W.get('P2',0)*100:.0f} %", "Le socle — 1 an à l'avance"),
+            ("🛫 P1 — Programmes de vols",      f"{W.get('P1',0)*100:.0f} %", "Capacités planifiées"),
+            ("📊 P5 — Saisonnalité historique", f"{W.get('P5',0)*100:.0f} %", "Tendance ADP 2022-2024"),
+            ("🏨 P3 — Disponibilité hôtelière", f"{W.get('P3',0)*100:.0f} %", "Signal court terme"),
+            ("📈 P4 — Google Trends",           f"{W.get('P4',0)*100:.0f} %", "Intention à long terme"),
         ]
+
+    # Banner auto-calibration
+    if using_optimized:
+        horizon_key = "tactique" if is_tactique else "strategique"
+        mape_before = opt.get(f"mape_{horizon_key}_avant", "?")
+        mape_after  = opt.get(f"mape_{horizon_key}_apres", "?")
+        nb_sem      = opt.get("nb_semaines_reelles", "?")
+        st.success(
+            f"✅ **Poids auto-calibrés** sur {nb_sem} semaines réelles — "
+            f"MAPE {mape_before}% → **{mape_after}%** "
+            f"(−{opt.get(f'gain_{horizon_key}_pts','?')} pts)  "
+            f"| _Mis à jour : {opt.get('derniere_optimisation','?')}_"
+        )
+    else:
+        st.info("ℹ️ Poids par défaut (document de cadrage). Importez des données réelles dans l'onglet **📥 Import Réel** pour calibrer automatiquement.")
 
     with st.expander("📐 Pondération appliquée (document de cadrage OzeRoute)", expanded=False):
         st.dataframe(
@@ -622,17 +797,38 @@ with tab5:
                 m4 = df4_synth[df4_synth["label_semaine"] == lbl]["trends_index"]
                 if len(m4): p4 = float(m4.iloc[0]) / 100.0
 
-            raw = W["P1"]*p1_score + W["P2"]*p2 + W["P3"]*p3 + W["P4"]*p4
+            # P5 — saisonnalité (stratégique)
+            p5 = 0.0
+            if df5 is not None and not df5.empty:
+                m5 = df5[df5["label_semaine"] == lbl]["saison_index"]
+                if len(m5): p5 = float(m5.iloc[0])
+
+            # P6 — météo (tactique) — average impact across airports, shifted to [0,1]
+            p6 = 0.5
+            if df6 is not None and not df6.empty:
+                m6 = df6[df6["label_semaine"] == lbl]["meteo_impact"]
+                if len(m6):
+                    p6 = float(m6.mean())   # [-0.15, +0.15]
+                    p6 = (p6 + 0.15) / 0.30  # normalize to [0, 1]
+
+            raw = (W["P1"] * p1_score
+                 + W["P2"] * p2
+                 + W["P3"] * p3
+                 + W["P4"] * p4
+                 + W.get("P5", 0) * p5
+                 + W.get("P6", 0) * p6)
             idx = round(min(raw / NORM * 100, 100), 1)
             signal, color, reco = _signal_label(idx)
 
             rows_s.append({
                 "label_semaine": lbl, "semaine_debut": row["semaine_debut"],
                 "index": idx, "signal": signal, "color": color, "reco": reco,
-                "p1_pts": round(W["P1"] * p1_score / NORM * 100, 1),
-                "p2_pts": round(W["P2"] * p2      / NORM * 100, 1),
-                "p3_pts": round(W["P3"] * p3      / NORM * 100, 1),
-                "p4_pts": round(W["P4"] * p4      / NORM * 100, 1),
+                "p1_pts": round(W["P1"]          * p1_score / NORM * 100, 1),
+                "p2_pts": round(W["P2"]          * p2       / NORM * 100, 1),
+                "p3_pts": round(W["P3"]          * p3       / NORM * 100, 1),
+                "p4_pts": round(W["P4"]          * p4       / NORM * 100, 1),
+                "p5_pts": round(W.get("P5", 0)  * p5       / NORM * 100, 1),
+                "p6_pts": round(W.get("P6", 0)  * p6       / NORM * 100, 1),
             })
 
         df_cs = pd.DataFrame(rows_s)
@@ -710,9 +906,508 @@ with tab5:
                 c3.caption(row["signal"])
                 c4.caption(row["reco"])
 
+            # ── Export ──────────────────────────────────────────────────
+            st.divider()
+            export_df = df_cs[["label_semaine", "index", "signal", "reco",
+                                "p1_pts", "p2_pts", "p3_pts", "p4_pts", "p5_pts", "p6_pts"]].copy()
+            export_df.columns = ["Semaine", "Indice (0-100)", "Signal", "Recommandation",
+                                  "P1 pts", "P2 pts", "P3 pts", "P4 pts", "P5 pts", "P6 pts"]
+            horizon_lbl = "Tactique" if is_tactique else "Strategique"
+            period_lbl  = f"{date_range[0].strftime('%Y%m%d')}_{date_range[1].strftime('%Y%m%d')}" if date_range else "all"
+            fname_base  = f"ozeroute_synthese_{horizon_lbl}_{period_lbl}"
 
-# ══ TAB 6 — Données brutes ════════════════════════════════════════════════
-with tab6:
+            # ── Excel ────────────────────────────────────────────────
+            def _to_excel(df):
+                buf = io.BytesIO()
+                with pd.ExcelWriter(buf, engine="openpyxl") as writer:
+                    df.to_excel(writer, index=False, sheet_name="Synthèse")
+                    ws = writer.sheets["Synthèse"]
+                    # Auto-width columns
+                    for col in ws.columns:
+                        max_len = max(len(str(cell.value or "")) for cell in col)
+                        ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 50)
+                return buf.getvalue()
+
+            # ── PDF ──────────────────────────────────────────────────
+            def _ascii(text):
+                return (str(text)
+                    .replace("—", "-").replace("–", "-").replace("→", "->")
+                    .replace("é", "e").replace("è", "e").replace("ê", "e").replace("ë", "e")
+                    .replace("à", "a").replace("â", "a").replace("ä", "a")
+                    .replace("î", "i").replace("ï", "i")
+                    .replace("ô", "o").replace("ö", "o")
+                    .replace("û", "u").replace("ù", "u").replace("ü", "u")
+                    .replace("ç", "c").replace("ñ", "n")
+                    .replace("É", "E").replace("È", "E").replace("Ê", "E")
+                    .replace("À", "A").replace("Â", "A")
+                    .replace("Î", "I").replace("Ô", "O").replace("Û", "U")
+                    .replace("Ç", "C").replace("°", " deg")
+                    .replace("✅", "OK").replace("⚠", "!").replace("🔴", "")
+                    .replace("🟠", "").replace("🟡", "").replace("🔵", "").replace("⚪", "")
+                    .encode("latin-1", errors="replace").decode("latin-1")
+                )
+
+            def _to_pdf(df, horizon, period):
+                from fpdf import FPDF
+
+                def _header(pdf, cols, widths, bg=(30, 40, 80)):
+                    pdf.set_font("Helvetica", "B", 9)
+                    pdf.set_fill_color(*bg)
+                    pdf.set_text_color(255, 255, 255)
+                    for w, c in zip(widths, cols):
+                        pdf.cell(w, 8, c, border=1, fill=True)
+                    pdf.ln()
+                    pdf.set_font("Helvetica", "", 8)
+                    pdf.set_text_color(0, 0, 0)
+
+                pdf = FPDF()
+                pdf.add_page()
+
+                # ── Title ────────────────────────────────────────────
+                pdf.set_font("Helvetica", "B", 14)
+                pdf.cell(0, 10, "OzeRoute - Synthese Predictive", ln=True)
+                pdf.set_font("Helvetica", "", 10)
+                pdf.cell(0, 7, f"Horizon : {horizon}   |   Periode : {period}", ln=True)
+                pdf.ln(4)
+
+                # ── Table 1 : main results ───────────────────────────
+                pdf.set_font("Helvetica", "B", 10)
+                pdf.cell(0, 8, "Resultats par semaine", ln=True)
+                cols1   = ["Semaine", "Indice", "Signal", "Recommandation"]
+                widths1 = [38, 18, 36, 98]
+                _header(pdf, cols1, widths1)
+                fill = False
+                for _, row in df.iterrows():
+                    pdf.set_fill_color(240, 243, 255) if fill else pdf.set_fill_color(255, 255, 255)
+                    vals = [_ascii(row["Semaine"]), _ascii(row["Indice (0-100)"]),
+                            _ascii(row["Signal"]), _ascii(row["Recommandation"])[:65]]
+                    for w, v in zip(widths1, vals):
+                        pdf.cell(w, 7, v, border=1, fill=True)
+                    pdf.ln()
+                    fill = not fill
+
+                # ── Table 2 : piste contributions ────────────────────
+                pdf.ln(6)
+                pdf.set_font("Helvetica", "B", 10)
+                pdf.set_text_color(0, 0, 0)
+                pdf.cell(0, 8, "Contribution de chaque Piste (points sur 100)", ln=True)
+                cols2   = ["Semaine", "P1 Vols", "P2 Calendriers", "P3 Hotels", "P4 Trends", "P5 Saison", "P6 Meteo", "Total"]
+                widths2 = [38, 20, 28, 22, 22, 22, 22, 16]
+                _header(pdf, cols2, widths2, bg=(20, 60, 40))
+                fill = False
+                for _, row in df.iterrows():
+                    pdf.set_fill_color(240, 255, 245) if fill else pdf.set_fill_color(255, 255, 255)
+                    total = sum(float(row.get(c, 0) or 0)
+                                for c in ["P1 pts", "P2 pts", "P3 pts", "P4 pts", "P5 pts", "P6 pts"])
+                    vals = [
+                        _ascii(row["Semaine"]),
+                        str(row.get("P1 pts", 0)),
+                        str(row.get("P2 pts", 0)),
+                        str(row.get("P3 pts", 0)),
+                        str(row.get("P4 pts", 0)),
+                        str(row.get("P5 pts", 0)),
+                        str(row.get("P6 pts", 0)),
+                        str(round(total, 1)),
+                    ]
+                    for w, v in zip(widths2, vals):
+                        pdf.cell(w, 7, v, border=1, fill=True)
+                    pdf.ln()
+                    fill = not fill
+
+                return bytes(pdf.output())
+
+            exp1, exp2, exp3 = st.columns(3)
+            with exp1:
+                st.download_button(
+                    "⬇️ CSV",
+                    data=export_df.to_csv(index=False, encoding="utf-8-sig"),
+                    file_name=f"{fname_base}.csv",
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+            with exp2:
+                st.download_button(
+                    "⬇️ Excel",
+                    data=_to_excel(export_df),
+                    file_name=f"{fname_base}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True,
+                )
+            with exp3:
+                st.download_button(
+                    "⬇️ PDF",
+                    data=_to_pdf(export_df, horizon_lbl, period_lbl),
+                    file_name=f"{fname_base}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                )
+
+
+# ══ TAB 9 — Import Réel & Calibration ════════════════════════════════════
+with tab9:
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT))
+    from piste7_import.import_commandes import (
+        import_from_bytes, generate_demo, generate_template,
+        recalibrate, compute_calibration, load_signal as _load_signal,
+        load_commandes as _load_cmd_raw, TEMPLATE_FILE, IMPORT_FILE,
+    )
+
+    st.markdown(
+        "**Mode Shadow — Calibration du modèle.** "
+        "Importez vos commandes réelles semaine par semaine pour mesurer la précision "
+        "des prédictions et calculer le facteur de conversion *indice → nombre de courses*."
+    )
+
+    # ── Section 1 : Import / chargement ────────────────────────────────
+    st.subheader("1. Importer les données réelles")
+
+    col_upload, col_demo = st.columns([3, 1])
+
+    with col_upload:
+        uploaded = st.file_uploader(
+            "Glissez votre CSV de commandes (colonnes : semaine_debut, nb_courses)",
+            type=["csv"],
+            help="Colonnes obligatoires : semaine_debut (YYYY-MM-DD), nb_courses.\n"
+                 "Optionnelles : semaine_fin, segment, aeroport, marche_source, nb_passagers, notes.",
+        )
+        if uploaded is not None:
+            ok, errors = import_from_bytes(uploaded.getvalue(), uploaded.name)
+            if errors:
+                for e in errors:
+                    st.warning(e)
+            if ok:
+                st.success(f"✅ Fichier «{uploaded.name}» importé — calibration recalculée.")
+                st.cache_data.clear()
+                st.rerun()
+            else:
+                st.error("Import échoué — vérifiez les erreurs ci-dessus.")
+
+    with col_demo:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("🎲 Données démo", use_container_width=True,
+                     help="Génère des données simulées (bruit ±12 %) basées sur le signal prédit"):
+            with st.spinner("Génération…"):
+                generate_demo()
+            st.cache_data.clear()
+            st.success("Données de démonstration générées.")
+            st.rerun()
+
+    # Template download
+    tpl_path = TEMPLATE_FILE
+    if tpl_path.exists() or True:
+        if st.button("📄 Générer & télécharger le template CSV", use_container_width=False):
+            tpl = generate_template()
+            st.cache_data.clear()
+        if tpl_path.exists():
+            with open(tpl_path, "rb") as _f:
+                st.download_button(
+                    "⬇ Télécharger template_import_commandes.csv",
+                    _f.read(), "template_import_commandes.csv", "text/csv",
+                    use_container_width=False,
+                )
+
+    st.divider()
+
+    # ── Section 2 : Métriques de calibration ───────────────────────────
+    df_cmd = load_commandes()
+    calib  = load_calibration()
+
+    if df_cmd is None or df_cmd.empty:
+        st.info("Aucune donnée réelle importée — utilisez l'import ci-dessus ou les données démo.")
+        st.stop()
+
+    st.subheader("2. Métriques de calibration (mode shadow)")
+
+    nb_cal = calib.get("nb_semaines_calibrees", 0)
+    mape   = calib.get("mape")
+    mae    = calib.get("mae")
+    r2     = calib.get("r2")
+    fc     = calib.get("facteur_conversion")
+    maj    = calib.get("derniere_mise_a_jour", "—")
+
+    m1, m2, m3, m4, m5 = st.columns(5)
+    m1.metric("Semaines calibrées", nb_cal or "—")
+    m2.metric("MAPE",  f"{mape:.1f} %" if mape is not None else "—",
+              help="Mean Absolute Percentage Error — erreur relative moyenne")
+    m3.metric("MAE",   f"{mae:.0f} courses" if mae is not None else "—",
+              help="Mean Absolute Error — écart moyen absolu en nombre de courses")
+    m4.metric("R²",    f"{r2:.3f}" if r2 is not None else "—",
+              help="Coefficient de détermination — 1.0 = prédiction parfaite")
+    m5.metric("Facteur conversion",
+              f"{fc:.0f} c/u" if fc is not None else "—",
+              help="Courses par unité d'indice (indice 0→1). Exemple : 120 c/u × index 0.8 = 96 courses prévues")
+
+    # Interprétation MAPE
+    if mape is not None:
+        if mape < 10:
+            st.success(f"✅ MAPE {mape:.1f} % — Excellent : le modèle prédit avec une précision de >{100-mape:.0f} %")
+        elif mape < 20:
+            st.info(f"📊 MAPE {mape:.1f} % — Acceptable : affinez avec plus de semaines réelles")
+        elif mape < 35:
+            st.warning(f"⚠️ MAPE {mape:.1f} % — Perfectible : vérifiez si des événements exceptionnels faussent le calcul")
+        else:
+            st.error(f"❌ MAPE {mape:.1f} % — Élevée : le modèle nécessite une recalibration ou des données supplémentaires")
+
+    st.caption(f"Dernière mise à jour : {maj}  |  {calib.get('nb_semaines_total', '—')} semaines dans le fichier")
+
+    # ── Section 2b : Poids optimisés ──────────────────────────────────
+    st.subheader("2b. Poids des Pistes — auto-calibration")
+
+    opt_w = load_optimized_weights()
+
+    if not opt_w:
+        nb_manquantes = max(0, 6 - (calib.get("nb_semaines_calibrees") or 0))
+        st.warning(
+            f"⏳ Optimisation non encore disponible — "
+            f"il manque **{nb_manquantes} semaine(s)** de données réelles (minimum 6)."
+        )
+        if st.button("🔄 Forcer la recalibration des poids", disabled=(nb_manquantes > 0)):
+            from piste7_import.optimize_weights import run_optimization
+            with st.spinner("Optimisation en cours…"):
+                run_optimization()
+            st.cache_data.clear()
+            st.rerun()
+    else:
+        opt_nb  = opt_w.get("nb_semaines_reelles", "?")
+        opt_maj = opt_w.get("derniere_optimisation", "?")
+
+        oc1, oc2 = st.columns(2)
+
+        with oc1:
+            st.markdown("**Horizon Tactique (1-4 sem.)**")
+            tact = opt_w.get("tactique", {})
+            tact_def = opt_w.get("tactique_defaut", {"P1":0.35,"P2":0.20,"P3":0.25,"P4":0.15,"P6":0.05})
+            mape_tb = opt_w.get("mape_tactique_avant", "?")
+            mape_ta = opt_w.get("mape_tactique_apres", "?")
+            gain_t  = opt_w.get("gain_tactique_pts", 0)
+            st.markdown(f"MAPE : **{mape_tb}%** → **{mape_ta}%**  (−{gain_t} pts)")
+            tact_rows = []
+            for piste in ["P1","P2","P3","P4","P6"]:
+                before = tact_def.get(piste, 0)
+                after  = tact.get(piste, before)
+                delta  = round((after - before) * 100, 1)
+                arrow  = "▲" if delta > 0.5 else ("▼" if delta < -0.5 else "=")
+                tact_rows.append({
+                    "Piste": piste,
+                    "Avant": f"{before*100:.0f} %",
+                    "Après": f"{after*100:.0f} %",
+                    "Δ":    f"{arrow} {abs(delta):.1f} pts",
+                })
+            st.dataframe(pd.DataFrame(tact_rows), hide_index=True, use_container_width=True)
+
+        with oc2:
+            st.markdown("**Horizon Stratégique (3-6 mois)**")
+            strat = opt_w.get("strategique", {})
+            strat_def = opt_w.get("strategique_defaut", {"P1":0.35,"P2":0.40,"P3":0.07,"P4":0.03,"P5":0.15})
+            mape_sb = opt_w.get("mape_strategique_avant", "?")
+            mape_sa = opt_w.get("mape_strategique_apres", "?")
+            gain_s  = opt_w.get("gain_strategique_pts", 0)
+            st.markdown(f"MAPE : **{mape_sb}%** → **{mape_sa}%**  (−{gain_s} pts)")
+            strat_rows = []
+            for piste in ["P1","P2","P3","P4","P5"]:
+                before = strat_def.get(piste, 0)
+                after  = strat.get(piste, before)
+                delta  = round((after - before) * 100, 1)
+                arrow  = "▲" if delta > 0.5 else ("▼" if delta < -0.5 else "=")
+                strat_rows.append({
+                    "Piste": piste,
+                    "Avant": f"{before*100:.0f} %",
+                    "Après": f"{after*100:.0f} %",
+                    "Δ":    f"{arrow} {abs(delta):.1f} pts",
+                })
+            st.dataframe(pd.DataFrame(strat_rows), hide_index=True, use_container_width=True)
+
+        st.caption(f"Calibré sur {opt_nb} semaines · {opt_maj} · méthode : {opt_w.get('methode_tactique','?')}")
+
+        col_reset, col_recal = st.columns([1, 1])
+        if col_recal.button("🔄 Recalibrer maintenant", use_container_width=True):
+            from piste7_import.optimize_weights import run_optimization
+            with st.spinner("Optimisation en cours…"):
+                run_optimization()
+            st.cache_data.clear()
+            st.success("Poids recalibrés.")
+            st.rerun()
+        if col_reset.button("↩ Remettre les poids par défaut", use_container_width=True):
+            from piste7_import.optimize_weights import reset_to_defaults
+            reset_to_defaults()
+            st.cache_data.clear()
+            st.info("Poids par défaut restaurés.")
+            st.rerun()
+
+    st.divider()
+
+    # ── Section 3 : Graphique Prédit vs Réel ───────────────────────────
+    st.subheader("3. Prédictions vs Commandes réelles")
+
+    # Rebuild full comparison table inline
+    signal_map = _load_signal()
+    raw_cmds   = _load_cmd_raw()
+
+    if fc and raw_cmds and signal_map:
+        comp_rows = []
+        for cmd in raw_cmds:
+            sd  = cmd["semaine_debut"]
+            sig = signal_map.get(sd)
+            if sig is None:
+                continue
+            pred = sig["signal_consolide"] * fc
+            comp_rows.append({
+                "semaine_debut":    pd.Timestamp(sd),
+                "label_semaine":    pd.Timestamp(sd).strftime("%d %b"),
+                "nb_courses":       cmd["nb_courses"],
+                "courses_predites": round(pred, 1),
+                "signal_consolide": sig["signal_consolide"],
+                "intensite":        sig["intensite"],
+                "erreur_pct":       round(abs(pred - cmd["nb_courses"]) / cmd["nb_courses"] * 100, 1)
+                                    if cmd["nb_courses"] > 0 else None,
+                "ecart_signe":      round(pred - cmd["nb_courses"], 1),
+            })
+        df_comp = pd.DataFrame(comp_rows).sort_values("semaine_debut")
+
+        if not df_comp.empty:
+            fig_cmp = go.Figure()
+            # Réel
+            fig_cmp.add_trace(go.Bar(
+                x=df_comp["label_semaine"], y=df_comp["nb_courses"],
+                name="Réel", marker_color="#4f8ef7",
+                hovertemplate="<b>%{x}</b><br>Réel : %{y} courses<extra></extra>",
+            ))
+            # Prédit
+            fig_cmp.add_trace(go.Scatter(
+                x=df_comp["label_semaine"], y=df_comp["courses_predites"],
+                name="Prédit", line=dict(color="#e74c3c", width=2.5),
+                mode="lines+markers", marker=dict(size=6),
+                hovertemplate="<b>%{x}</b><br>Prédit : %{y:.0f} courses<extra></extra>",
+            ))
+            fig_cmp.update_layout(
+                **DARK,
+                title="Commandes réelles vs Prédictions du modèle",
+                xaxis_title="Semaine",
+                yaxis_title="Nombre de courses",
+                height=400,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            )
+            st.plotly_chart(fig_cmp, use_container_width=True)
+
+            # Erreur par semaine
+            with st.expander("📊 Erreur relative semaine par semaine"):
+                df_err = df_comp[df_comp["erreur_pct"].notna()].copy()
+                colors_err = ["#2ecc71" if v <= 10 else "#f1c40f" if v <= 20 else "#e67e22" if v <= 35 else "#e74c3c"
+                              for v in df_err["erreur_pct"]]
+                fig_err = go.Figure(go.Bar(
+                    x=df_err["label_semaine"], y=df_err["erreur_pct"],
+                    marker_color=colors_err,
+                    text=df_err["erreur_pct"].apply(lambda v: f"{v:.1f}%"),
+                    textposition="outside",
+                    hovertemplate="<b>%{x}</b><br>Erreur : %{y:.1f}%<extra></extra>",
+                ))
+                for lvl, col, lbl in [(10,"#2ecc71","<10 %"), (20,"#f1c40f","<20 %"), (35,"#e67e22","<35 %")]:
+                    fig_err.add_hline(y=lvl, line_dash="dot", line_color=col, line_width=1,
+                                      annotation_text=lbl, annotation_position="top right",
+                                      annotation_font_color=col)
+                fig_err.update_layout(**DARK, title="Erreur absolue relative par semaine (%)",
+                                      yaxis_title="MAPE contribution (%)", height=320)
+                st.plotly_chart(fig_err, use_container_width=True)
+
+            # Écart signé
+            with st.expander("↕ Écart signé (sur-estimation / sous-estimation)"):
+                colors_ecart = ["#e74c3c" if v > 0 else "#4f8ef7" for v in df_comp["ecart_signe"]]
+                fig_ecart = go.Figure(go.Bar(
+                    x=df_comp["label_semaine"], y=df_comp["ecart_signe"],
+                    marker_color=colors_ecart,
+                    hovertemplate="<b>%{x}</b><br>Écart : %{y:+.0f} courses<extra></extra>",
+                ))
+                fig_ecart.add_hline(y=0, line_color="#ffffff", line_width=1)
+                fig_ecart.update_layout(**DARK,
+                    title="Écart signé — rouge = sur-estimation, bleu = sous-estimation",
+                    yaxis_title="Prédit − Réel (courses)", height=300)
+                st.plotly_chart(fig_ecart, use_container_width=True)
+
+    st.divider()
+
+    # ── Section 4 : Tableau détaillé ───────────────────────────────────
+    st.subheader("4. Tableau de suivi semaine par semaine")
+
+    if 'df_comp' in dir() and not df_comp.empty:
+        display_cols = {
+            "label_semaine":    "Semaine",
+            "nb_courses":       "Réel (courses)",
+            "courses_predites": "Prédit (courses)",
+            "erreur_pct":       "Erreur %",
+            "ecart_signe":      "Écart (P−R)",
+            "intensite":        "Intensité prédite",
+        }
+        df_disp = df_comp[[c for c in display_cols if c in df_comp.columns]].rename(columns=display_cols)
+        st.dataframe(df_disp, use_container_width=True, hide_index=True, height=400)
+        st.download_button(
+            "⬇ Exporter tableau prédit vs réel",
+            df_disp.to_csv(index=False),
+            "ozeroute_calibration_detail.csv",
+            "text/csv",
+        )
+    else:
+        st.dataframe(df_cmd, use_container_width=True, hide_index=True)
+
+    st.divider()
+
+    # ── Section 5 : Évolution du facteur de conversion ─────────────────
+    if fc and raw_cmds and signal_map:
+        with st.expander("📈 Évolution du facteur de conversion semaine par semaine"):
+            fc_rows = []
+            for cmd in sorted(raw_cmds, key=lambda r: r["semaine_debut"]):
+                sd  = cmd["semaine_debut"]
+                sig = signal_map.get(sd)
+                if sig and sig["signal_consolide"] > 0.01 and cmd["nb_courses"] > 0:
+                    fc_rows.append({
+                        "label": pd.Timestamp(sd).strftime("%d %b"),
+                        "facteur": round(cmd["nb_courses"] / sig["signal_consolide"], 1),
+                    })
+            if fc_rows:
+                df_fc = pd.DataFrame(fc_rows)
+                fig_fc = go.Figure()
+                fig_fc.add_trace(go.Scatter(
+                    x=df_fc["label"], y=df_fc["facteur"],
+                    mode="lines+markers", line=dict(color="#9b59b6", width=2),
+                    marker=dict(size=6),
+                    hovertemplate="<b>%{x}</b><br>Facteur : %{y:.0f} c/u<extra></extra>",
+                ))
+                fig_fc.add_hline(y=fc, line_dash="dot", line_color="#ffffff", line_width=1.5,
+                                 annotation_text=f"Médiane : {fc:.0f}", annotation_position="top right")
+                fig_fc.update_layout(**DARK,
+                    title="Facteur de conversion semaine par semaine (courses / indice-unit)",
+                    yaxis_title="Facteur (courses / u)", height=300)
+                st.plotly_chart(fig_fc, use_container_width=True)
+                st.caption(
+                    "Un facteur stable indique que le modèle est bien calibré. "
+                    "Une forte variance suggère des événements non capturés par les pistes."
+                )
+
+    # ── Section 6 : Mode Shadow — explication ──────────────────────────
+    with st.expander("ℹ️ Comment fonctionne le Mode Shadow ?"):
+        st.markdown(f"""
+**Mode Shadow** : le modèle tourne en parallèle des opérations réelles sans intervenir.
+Chaque semaine, vous renseignez le nombre réel de courses, et le système calcule automatiquement :
+
+| Métrique | Signification | Cible |
+|----------|--------------|-------|
+| **MAPE** | Erreur relative moyenne | < 15 % |
+| **MAE**  | Écart moyen en courses  | < 15 courses/sem. |
+| **R²**   | Qualité de corrélation  | > 0.80 |
+| **Facteur** | courses au pic (indice = 1.0) | Stable sur 4+ sem. |
+
+**Facteur de conversion actuel : {fc:.0f} courses / unité d'indice**
+→ Exemple : indice prédit = 0.85 → prédiction = {fc:.0f} × 0.85 = **{round(fc * 0.85):.0f} courses**
+
+**Procédure recommandée :**
+1. Lancer le pipeline chaque lundi matin
+2. Saisir les courses réelles de la semaine précédente dans le template CSV
+3. Importer via cette interface — le MAPE se met à jour automatiquement
+4. Après 8 semaines de données, le modèle est considéré **calibré** (facteur stable)
+        """)
+
+# ══ TAB 8 — Données brutes ════════════════════════════════════════════════
+with tab8:
     tabs_data = st.tabs(["P2 Calendrier","P1 Routes","P3 Hôtels","P4 Trends"])
 
     with tabs_data[0]:

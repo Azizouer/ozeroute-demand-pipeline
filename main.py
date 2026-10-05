@@ -55,6 +55,27 @@ PISTES = {
         "requires_key": None,
         "output": "ozeroute_google_trends.csv",
     },
+    5: {
+        "label": "Saisonnalité historique ADP 2022-2024",
+        "module": "piste5_saisonnalite/historical_seasonality.py",
+        "status": "active",
+        "requires_key": None,
+        "output": "ozeroute_saisonnalite_historique.csv",
+    },
+    6: {
+        "label": "Météo prévue (Open-Meteo)",
+        "module": "piste6_meteo/weather_forecast.py",
+        "status": "active",
+        "requires_key": None,
+        "output": "ozeroute_meteo_prevue.csv",
+    },
+    7: {
+        "label": "Import Données Réelles & Calibration",
+        "module": "piste7_import/import_commandes.py",
+        "status": "active",
+        "requires_key": None,
+        "output": "ozeroute_commandes_reelles.csv",
+    },
 }
 
 
