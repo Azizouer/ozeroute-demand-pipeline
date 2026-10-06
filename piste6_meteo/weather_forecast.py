@@ -103,9 +103,19 @@ def week_range(start: date, end: date):
 
 
 def main():
-    today          = date.today()
-    analysis_start = today
-    analysis_end   = today + timedelta(weeks=8)
+    today = date.today()
+    # Use P2 week range so past weeks (e.g. September) are covered
+    p2_file = Path(__file__).parent.parent / "output" / "ozeroute_overlap_index_semaine_2026.csv"
+    if p2_file.exists():
+        import csv as _csv
+        with open(p2_file) as _f:
+            _rows = list(_csv.DictReader(_f))
+        p2_starts = sorted(r["semaine_debut"] for r in _rows if r.get("semaine_debut"))
+        analysis_start = date.fromisoformat(p2_starts[0])  if p2_starts else date(2026, 6, 1)
+        analysis_end   = date.fromisoformat(p2_starts[-1]) if p2_starts else today + timedelta(weeks=8)
+    else:
+        analysis_start = date(2026, 6, 1)
+        analysis_end   = today + timedelta(weeks=8)
 
     rows = []
     for w_start in week_range(analysis_start, analysis_end):

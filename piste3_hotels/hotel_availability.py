@@ -188,8 +188,25 @@ def main():
         return
 
     today = date.today()
-    start_monday = today - timedelta(days=today.weekday())
-    weeks = [start_monday + timedelta(weeks=i) for i in range(args.weeks)]
+    # Use P2 week range: read from signal CSV, fallback to fixed start
+    p2_file = Path(__file__).parent.parent / "output" / "ozeroute_overlap_index_semaine_2026.csv"
+    if p2_file.exists():
+        import csv as _csv
+        with open(p2_file) as _f:
+            _rows = list(_csv.DictReader(_f))
+        p2_starts = sorted(r["semaine_debut"] for r in _rows if r.get("semaine_debut"))
+        data_start = date.fromisoformat(p2_starts[0]) if p2_starts else date(2026, 6, 1)
+        data_end   = date.fromisoformat(p2_starts[-1]) if p2_starts else today + timedelta(weeks=args.weeks)
+    else:
+        data_start = date(2026, 6, 1)
+        data_end   = today + timedelta(weeks=args.weeks)
+    # Build weekly list from data_start aligned to Monday
+    data_start = data_start - timedelta(days=data_start.weekday())
+    weeks = []
+    w = data_start
+    while w <= data_end:
+        weeks.append(w)
+        w += timedelta(weeks=1)
 
     rows = []
     for zone_key, zone_info in ZONES.items():
