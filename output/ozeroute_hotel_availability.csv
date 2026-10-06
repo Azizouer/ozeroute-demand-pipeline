@@ -1,0 +1,91 @@
+semaine_debut,semaine_fin,zone_key,zone_label,airports_concernes,taux_occupation_estime,signal_rarete,niveau_rarete,action_recommandee,evenements_actifs,source_donnee
+2026-06-01,2026-06-07,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.819,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-08,2026-06-14,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.842,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-06-15,2026-06-21,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.874,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-06-22,2026-06-28,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.92,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-06-29,2026-07-05,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-06,2026-07-12,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-13,2026-07-19,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,14 juillet,calibre_synthetique
+2026-07-20,2026-07-26,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-07-27,2026-08-02,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-03,2026-08-09,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-10,2026-08-16,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-17,2026-08-23,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-08-24,2026-08-30,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.947,Saturé,4,Activer capacité max + tarif premium,Rock en Seine,calibre_synthetique
+2026-08-31,2026-09-06,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.819,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-07,2026-09-13,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.842,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-09-14,2026-09-20,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.858,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-09-21,2026-09-27,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.874,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-09-28,2026-10-04,paris_centre,Paris Centre (1er-8e),CDG+ORY,0.967,Saturé,4,Activer capacité max + tarif premium,Maison&Objet,calibre_synthetique
+2026-06-01,2026-06-07,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.745,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-08,2026-06-14,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.767,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-15,2026-06-21,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.795,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-22,2026-06-28,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.838,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-06-29,2026-07-05,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.909,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-07-06,2026-07-12,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.959,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-13,2026-07-19,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-20,2026-07-26,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-07-27,2026-08-02,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-03,2026-08-09,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-10,2026-08-16,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.923,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-17,2026-08-23,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.887,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-08-24,2026-08-30,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.816,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-08-31,2026-09-06,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.745,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-07,2026-09-13,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.767,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-14,2026-09-20,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.781,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-21,2026-09-27,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.795,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-28,2026-10-04,cdg_zone,Zone CDG (Roissy/Gonesse),CDG,0.886,Tendu,3,Renforcer flotte — demande confirmée,Maison&Objet,calibre_synthetique
+2026-06-01,2026-06-07,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.714,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-08,2026-06-14,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.734,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-15,2026-06-21,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.762,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-22,2026-06-28,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.802,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-29,2026-07-05,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.87,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-07-06,2026-07-12,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.918,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-07-13,2026-07-19,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.952,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-20,2026-07-26,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.966,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-07-27,2026-08-02,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-03,2026-08-09,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.97,Saturé,4,Activer capacité max + tarif premium,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-10,2026-08-16,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.884,Tendu,3,Renforcer flotte — demande confirmée,Champ. Natation Saint-Denis,calibre_synthetique
+2026-08-17,2026-08-23,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.85,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-08-24,2026-08-30,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.832,Tendu,3,Renforcer flotte — demande confirmée,Rock en Seine,calibre_synthetique
+2026-08-31,2026-09-06,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.714,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-07,2026-09-13,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.734,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-14,2026-09-20,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.748,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-21,2026-09-27,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.762,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-09-28,2026-10-04,orly_zone,Zone Orly (Rungis/Créteil),ORY,0.782,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-06-01,2026-06-07,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.861,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-06-08,2026-06-14,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.886,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-06-15,2026-06-21,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.918,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-06-22,2026-06-28,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.968,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-06-29,2026-07-05,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-06,2026-07-12,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-13,2026-07-19,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-20,2026-07-26,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-07-27,2026-08-02,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-08-03,2026-08-09,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-08-10,2026-08-16,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-08-17,2026-08-23,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.97,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-08-24,2026-08-30,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.943,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-08-31,2026-09-06,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.861,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-09-07,2026-09-13,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.886,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-09-14,2026-09-20,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.902,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-09-21,2026-09-27,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.918,Tendu,3,Renforcer flotte — demande confirmée,—,calibre_synthetique
+2026-09-28,2026-10-04,disneyland_zone,Zone Disneyland (Marne-la-Vallée),CDG+ORY,0.943,Saturé,4,Activer capacité max + tarif premium,—,calibre_synthetique
+2026-06-01,2026-06-07,beauvais_zone,Zone Beauvais,BVA,0.578,Modéré,1,Demande normale,—,calibre_synthetique
+2026-06-08,2026-06-14,beauvais_zone,Zone Beauvais,BVA,0.594,Modéré,1,Demande normale,—,calibre_synthetique
+2026-06-15,2026-06-21,beauvais_zone,Zone Beauvais,BVA,0.616,Modéré,1,Demande normale,—,calibre_synthetique
+2026-06-22,2026-06-28,beauvais_zone,Zone Beauvais,BVA,0.649,Modéré,1,Demande normale,—,calibre_synthetique
+2026-06-29,2026-07-05,beauvais_zone,Zone Beauvais,BVA,0.704,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-07-06,2026-07-12,beauvais_zone,Zone Beauvais,BVA,0.743,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-07-13,2026-07-19,beauvais_zone,Zone Beauvais,BVA,0.77,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-07-20,2026-07-26,beauvais_zone,Zone Beauvais,BVA,0.781,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-07-27,2026-08-02,beauvais_zone,Zone Beauvais,BVA,0.759,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-08-03,2026-08-09,beauvais_zone,Zone Beauvais,BVA,0.743,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-08-10,2026-08-16,beauvais_zone,Zone Beauvais,BVA,0.715,Actif,2,Niveau nominal — surveiller,—,calibre_synthetique
+2026-08-17,2026-08-23,beauvais_zone,Zone Beauvais,BVA,0.688,Modéré,1,Demande normale,—,calibre_synthetique
+2026-08-24,2026-08-30,beauvais_zone,Zone Beauvais,BVA,0.632,Modéré,1,Demande normale,—,calibre_synthetique
+2026-08-31,2026-09-06,beauvais_zone,Zone Beauvais,BVA,0.578,Modéré,1,Demande normale,—,calibre_synthetique
+2026-09-07,2026-09-13,beauvais_zone,Zone Beauvais,BVA,0.594,Modéré,1,Demande normale,—,calibre_synthetique
+2026-09-14,2026-09-20,beauvais_zone,Zone Beauvais,BVA,0.605,Modéré,1,Demande normale,—,calibre_synthetique
+2026-09-21,2026-09-27,beauvais_zone,Zone Beauvais,BVA,0.616,Modéré,1,Demande normale,—,calibre_synthetique
+2026-09-28,2026-10-04,beauvais_zone,Zone Beauvais,BVA,0.632,Modéré,1,Demande normale,—,calibre_synthetique

@@ -2,7 +2,9 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+.venv/
 .DS_Store
-output/
+.streamlit/secrets.toml
+output/_tmp_*
 record_demo.py
 DEMO_SCRIPT.md

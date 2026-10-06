@@ -1,0 +1,91 @@
+semaine_debut,semaine_fin,semaine_iso,label_semaine,market_code,market_label,market_weight,trends_index,signal_trends,lead_time_weeks,requetes_configurees,source_donnee
+2026-10-05,2026-10-11,41,05 Oct – 11 Oct,FR,France,0.4,65,Fort,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-10-05,2026-10-11,41,05 Oct – 11 Oct,GB,UK,0.22,47,Modéré,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-10-05,2026-10-11,41,05 Oct – 11 Oct,IT,Italie,0.2,63,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-10-05,2026-10-11,41,05 Oct – 11 Oct,ES,Espagne,0.18,57,Modéré,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-10-05,2026-10-11,41,05 Oct – 11 Oct,SYNTHESE,Synthèse pondérée (tous marchés),1.0,59,Modéré,0,moyenne pondérée,offline_calibre
+2026-10-12,2026-10-18,42,12 Oct – 18 Oct,FR,France,0.4,68,Fort,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-10-12,2026-10-18,42,12 Oct – 18 Oct,GB,UK,0.22,51,Modéré,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-10-12,2026-10-18,42,12 Oct – 18 Oct,IT,Italie,0.2,68,Fort,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-10-12,2026-10-18,42,12 Oct – 18 Oct,ES,Espagne,0.18,62,Modéré,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-10-12,2026-10-18,42,12 Oct – 18 Oct,SYNTHESE,Synthèse pondérée (tous marchés),1.0,63,Modéré,0,moyenne pondérée,offline_calibre
+2026-10-19,2026-10-25,43,19 Oct – 25 Oct,FR,France,0.4,72,Fort,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-10-19,2026-10-25,43,19 Oct – 25 Oct,GB,UK,0.22,55,Modéré,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-10-19,2026-10-25,43,19 Oct – 25 Oct,IT,Italie,0.2,71,Fort,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-10-19,2026-10-25,43,19 Oct – 25 Oct,ES,Espagne,0.18,65,Fort,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-10-19,2026-10-25,43,19 Oct – 25 Oct,SYNTHESE,Synthèse pondérée (tous marchés),1.0,67,Fort,0,moyenne pondérée,offline_calibre
+2026-10-26,2026-11-01,44,26 Oct – 01 Nov,FR,France,0.4,78,Fort,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-10-26,2026-11-01,44,26 Oct – 01 Nov,GB,UK,0.22,58,Modéré,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-10-26,2026-11-01,44,26 Oct – 01 Nov,IT,Italie,0.2,76,Fort,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-10-26,2026-11-01,44,26 Oct – 01 Nov,ES,Espagne,0.18,68,Fort,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-10-26,2026-11-01,44,26 Oct – 01 Nov,SYNTHESE,Synthèse pondérée (tous marchés),1.0,71,Fort,0,moyenne pondérée,offline_calibre
+2026-11-02,2026-11-08,45,02 Nov – 08 Nov,FR,France,0.4,75,Fort,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-11-02,2026-11-08,45,02 Nov – 08 Nov,GB,UK,0.22,61,Modéré,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-11-02,2026-11-08,45,02 Nov – 08 Nov,IT,Italie,0.2,82,Fort,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-11-02,2026-11-08,45,02 Nov – 08 Nov,ES,Espagne,0.18,74,Fort,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-11-02,2026-11-08,45,02 Nov – 08 Nov,SYNTHESE,Synthèse pondérée (tous marchés),1.0,73,Fort,0,moyenne pondérée,offline_calibre
+2026-11-09,2026-11-15,46,09 Nov – 15 Nov,FR,France,0.4,65,Fort,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-11-09,2026-11-15,46,09 Nov – 15 Nov,GB,UK,0.22,66,Fort,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-11-09,2026-11-15,46,09 Nov – 15 Nov,IT,Italie,0.2,79,Fort,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-11-09,2026-11-15,46,09 Nov – 15 Nov,ES,Espagne,0.18,71,Fort,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-11-09,2026-11-15,46,09 Nov – 15 Nov,SYNTHESE,Synthèse pondérée (tous marchés),1.0,69,Fort,0,moyenne pondérée,offline_calibre
+2026-11-16,2026-11-22,47,16 Nov – 22 Nov,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-11-16,2026-11-22,47,16 Nov – 22 Nov,GB,UK,0.22,64,Modéré,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-11-16,2026-11-22,47,16 Nov – 22 Nov,IT,Italie,0.2,68,Fort,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-11-16,2026-11-22,47,16 Nov – 22 Nov,ES,Espagne,0.18,62,Modéré,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-11-16,2026-11-22,47,16 Nov – 22 Nov,SYNTHESE,Synthèse pondérée (tous marchés),1.0,57,Modéré,0,moyenne pondérée,offline_calibre
+2026-11-23,2026-11-29,48,23 Nov – 29 Nov,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-11-23,2026-11-29,48,23 Nov – 29 Nov,GB,UK,0.22,55,Modéré,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-11-23,2026-11-29,48,23 Nov – 29 Nov,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-11-23,2026-11-29,48,23 Nov – 29 Nov,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-11-23,2026-11-29,48,23 Nov – 29 Nov,SYNTHESE,Synthèse pondérée (tous marchés),1.0,47,Modéré,0,moyenne pondérée,offline_calibre
+2026-11-30,2026-12-06,49,30 Nov – 06 Dec,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-11-30,2026-12-06,49,30 Nov – 06 Dec,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-11-30,2026-12-06,49,30 Nov – 06 Dec,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-11-30,2026-12-06,49,30 Nov – 06 Dec,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-11-30,2026-12-06,49,30 Nov – 06 Dec,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2026-12-07,2026-12-13,50,07 Dec – 13 Dec,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-12-07,2026-12-13,50,07 Dec – 13 Dec,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-12-07,2026-12-13,50,07 Dec – 13 Dec,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-12-07,2026-12-13,50,07 Dec – 13 Dec,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-12-07,2026-12-13,50,07 Dec – 13 Dec,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2026-12-14,2026-12-20,51,14 Dec – 20 Dec,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-12-14,2026-12-20,51,14 Dec – 20 Dec,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-12-14,2026-12-20,51,14 Dec – 20 Dec,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-12-14,2026-12-20,51,14 Dec – 20 Dec,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-12-14,2026-12-20,51,14 Dec – 20 Dec,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2026-12-21,2026-12-27,52,21 Dec – 27 Dec,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-12-21,2026-12-27,52,21 Dec – 27 Dec,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-12-21,2026-12-27,52,21 Dec – 27 Dec,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-12-21,2026-12-27,52,21 Dec – 27 Dec,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-12-21,2026-12-27,52,21 Dec – 27 Dec,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2026-12-28,2027-01-03,53,28 Dec – 03 Jan,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2026-12-28,2027-01-03,53,28 Dec – 03 Jan,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2026-12-28,2027-01-03,53,28 Dec – 03 Jan,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2026-12-28,2027-01-03,53,28 Dec – 03 Jan,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2026-12-28,2027-01-03,53,28 Dec – 03 Jan,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2027-01-04,2027-01-10,1,04 Jan – 10 Jan,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2027-01-04,2027-01-10,1,04 Jan – 10 Jan,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2027-01-04,2027-01-10,1,04 Jan – 10 Jan,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2027-01-04,2027-01-10,1,04 Jan – 10 Jan,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2027-01-04,2027-01-10,1,04 Jan – 10 Jan,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2027-01-11,2027-01-17,2,11 Jan – 17 Jan,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2027-01-11,2027-01-17,2,11 Jan – 17 Jan,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2027-01-11,2027-01-17,2,11 Jan – 17 Jan,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2027-01-11,2027-01-17,2,11 Jan – 17 Jan,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2027-01-11,2027-01-17,2,11 Jan – 17 Jan,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2027-01-18,2027-01-24,3,18 Jan – 24 Jan,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2027-01-18,2027-01-24,3,18 Jan – 24 Jan,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2027-01-18,2027-01-24,3,18 Jan – 24 Jan,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2027-01-18,2027-01-24,3,18 Jan – 24 Jan,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2027-01-18,2027-01-24,3,18 Jan – 24 Jan,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2027-01-25,2027-01-31,4,25 Jan – 31 Jan,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2027-01-25,2027-01-31,4,25 Jan – 31 Jan,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2027-01-25,2027-01-31,4,25 Jan – 31 Jan,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2027-01-25,2027-01-31,4,25 Jan – 31 Jan,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2027-01-25,2027-01-31,4,25 Jan – 31 Jan,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre
+2027-02-01,2027-02-07,5,01 Feb – 07 Feb,FR,France,0.4,45,Modéré,2,navette aeroport Paris | transfert CDG | transport Orly Paris,offline_calibre
+2027-02-01,2027-02-07,5,01 Feb – 07 Feb,GB,UK,0.22,38,Faible,4,flights to Paris | Paris airport transfer | CDG shuttle,offline_calibre
+2027-02-01,2027-02-07,5,01 Feb – 07 Feb,IT,Italie,0.2,47,Modéré,3,voli Parigi | transfer aeroporto Parigi | navette Beauvais,offline_calibre
+2027-02-01,2027-02-07,5,01 Feb – 07 Feb,ES,Espagne,0.18,43,Faible,3,vuelos Paris | transfer aeropuerto Paris | vuelos Beauvais,offline_calibre
+2027-02-01,2027-02-07,5,01 Feb – 07 Feb,SYNTHESE,Synthèse pondérée (tous marchés),1.0,44,Faible,0,moyenne pondérée,offline_calibre

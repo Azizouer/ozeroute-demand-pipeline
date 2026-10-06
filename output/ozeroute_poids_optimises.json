@@ -1,0 +1,42 @@
+{
+  "nb_semaines_reelles": 15,
+  "derniere_optimisation": "2026-09-11 00:33",
+  "statut": "calibre",
+  "message": "Optimisé sur 15 semaines",
+  "tactique": {
+    "P1": 0.2203,
+    "P2": 0.5804,
+    "P3": 0.0923,
+    "P4": 0.0371,
+    "P6": 0.0699
+  },
+  "tactique_defaut": {
+    "P1": 0.35,
+    "P2": 0.2,
+    "P3": 0.25,
+    "P4": 0.15,
+    "P6": 0.05
+  },
+  "mape_tactique_avant": 320.7,
+  "mape_tactique_apres": 116.1,
+  "gain_tactique_pts": 204.6,
+  "methode_tactique": "random_search",
+  "strategique": {
+    "P1": 0.1261,
+    "P2": 0.6919,
+    "P3": 0.0515,
+    "P4": 0.0205,
+    "P5": 0.11
+  },
+  "strategique_defaut": {
+    "P1": 0.35,
+    "P2": 0.4,
+    "P3": 0.07,
+    "P4": 0.03,
+    "P5": 0.15
+  },
+  "mape_strategique_avant": 165.2,
+  "mape_strategique_apres": 78.5,
+  "gain_strategique_pts": 86.7,
+  "methode_strategique": "random_search"
+}
